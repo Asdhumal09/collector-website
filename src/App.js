@@ -16,6 +16,7 @@ import YojanaTableFour from "./YojanaTable/YojanaTableFour";
 
 // SGY Tables
 import TableOne from '../src/YojanaTable/SGY/TableOne'
+import PieChartComponent from "./Charts/Charts";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -50,6 +51,9 @@ function App() {
           {/* SGY Tables */}
           <Route path="/tableonesgy" element={<TableOne />} />  
 
+
+          {/* Chart  */}
+          <Route path="/chart" element={<PieChartComponent />} />  
 
         </Routes>
       )}
