@@ -16,6 +16,7 @@ import YojanaTableFour from "./YojanaTable/YojanaTableFour";
 
 // SGY Tables
 import TableOne from '../src/YojanaTable/SGY/TableOne'
+import DataTable from "./Table/DataTable";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -49,7 +50,7 @@ function App() {
 
           {/* SGY Tables */}
           <Route path="/tableonesgy" element={<TableOne />} />  
-
+          <Route path="/datatable" element={<DataTable/>}/>
 
         </Routes>
       )}

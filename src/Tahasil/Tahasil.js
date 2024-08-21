@@ -9,11 +9,25 @@ import {
 } from "@mui/material";
 import TopBar from "../TopBar/TopBar";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import apiClient from "../apiClient/ApiClient";
 
 const Tahasil = () => {
-  const buttonWidth = 200; // Set a consistent width for all buttons
 
-  // Date And Time
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiClient.get("/getAllTaluka"); // Use apiClient
+        console.log("taluka", response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const buttonWidth = 200; 
+
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {

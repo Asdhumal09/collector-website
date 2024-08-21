@@ -4,51 +4,57 @@ import Lottie from 'react-lottie-player';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import Axios
 import backgroundAnimationData from '../Login/svgImage.json';
 import imgOne from '../Login/bgImgOne.svg';
 import imgTwo from '../Login/bgImgTwo.svg';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import apiClient from '../apiClient/ApiClient';
 
 const LoginForm = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    const validUsername = 'admin@gmail.com';
-    const validPassword = 'admin';
+  const handleSubmit = async () => {
+    try {
+      const apiUrl = '/login'; 
 
-    if (username !== validUsername && password !== validPassword) {
-      toast.error('Incorrect username and password', {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    } else if (username !== validUsername) {
-      toast.error('Incorrect username', {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    } else if (password !== validPassword) {
-      toast.error('Incorrect password', {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    } else {
-      // Show success toast immediately
-      toast.success('Login Successful! Welcome back!', {
-        position: "top-right",
-        autoClose: 2000,
-      });
+      const response = await apiClient.post(apiUrl, { email, password });
+      console.log("Response:", response);
 
-      // Redirect after 2 seconds
-      setTimeout(() => {
-        navigate('/home');
-      }, 500); // Delay of 2 seconds
+      if (response.data && response.data.access_token) {
+       
+        localStorage.setItem('accessToken', response.data.access_token);
+
+        toast.success('Login Successful! Welcome back!', {
+          position: "top-right",
+          autoClose: 2000,
+        });
+
+
+        setTimeout(() => {
+          navigate('/home');
+        }, 500);
+      } else {
+        toast.error(response.data.message || 'Login failed. Please try again.', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      toast.error('An error occurred during login. Please try again.', {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
+
+  
 
   return (
     <Box
@@ -138,13 +144,13 @@ const LoginForm = () => {
             </Typography>
           </Box>
           <TextField
-            label="Username"
+            label="Email"
             required
             variant="outlined"
             fullWidth
             margin="normal"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             sx={{
               mb: 2,
               '& .MuiOutlinedInput-root': {
