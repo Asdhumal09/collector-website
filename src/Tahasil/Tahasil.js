@@ -50,11 +50,14 @@ const Tahasil = () => {
     return date.toLocaleDateString();
   };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const handleNavigate = ()=>{
-    navigate('/tahasiltwo')
-  }
+  const handleNavigate = () => {
+    navigate("/tahasiltwo");
+  };
+  const handleNavigateToChart = () => {
+    navigate("/chart");
+  };
 
   return (
     <Box
@@ -105,7 +108,8 @@ const Tahasil = () => {
               {/* Row 1: 4 Buttons */}
               <Grid container item spacing={4} justifyContent="center">
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -126,7 +130,8 @@ const Tahasil = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -147,7 +152,8 @@ const Tahasil = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -168,7 +174,8 @@ const Tahasil = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -192,7 +199,8 @@ const Tahasil = () => {
               {/* Row 2: 3 Buttons */}
               <Grid container item spacing={4} justifyContent="center">
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -213,7 +221,8 @@ const Tahasil = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -234,7 +243,8 @@ const Tahasil = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -258,7 +268,8 @@ const Tahasil = () => {
               {/* Row 3: 2 Buttons */}
               <Grid container item spacing={4} justifyContent="center">
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -279,7 +290,8 @@ const Tahasil = () => {
                   </Button>
                 </Grid>
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigate}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
@@ -303,7 +315,8 @@ const Tahasil = () => {
               {/* Row 4: 1 Button */}
               <Grid container item justifyContent="center">
                 <Grid item>
-                  <Button onClick={handleNavigate}
+                  <Button
+                    onClick={handleNavigateToChart}
                     className="ff_yatra"
                     variant="contained"
                     sx={{
