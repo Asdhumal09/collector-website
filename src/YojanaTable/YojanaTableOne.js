@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,55 +9,334 @@ import {
   Paper,
   Typography,
   Box,
-  Button,
+  Button
 } from "@mui/material";
 import TopBar from "../TopBar/TopBar";
+import apiClient from "../apiClient/ApiClient";
+import { useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const YojanaTableOne = () => {
-  const tableRef = useRef();
-  const headingRef = useRef();
+  const [showSignature, setShowSignature] = useState(true);
+  const [title, setTitle] = useState("");
+  const [talukas, setTalukas] = useState({});
+  const { id, subyojnaId } = useParams(); // Extract ID and SubyojnaID from URL parameters
 
-  const downloadPDF = () => {
-    const heading = headingRef.current;
-    const table = tableRef.current;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (id && subyojnaId) {
+          let response;
+          if (id === '10') {
+            response = await apiClient.get(`/getAllformfields/${subyojnaId}`);
+          } else {
+            response = await apiClient.get(`/getformfields_with_taluka/${id}/${subyojnaId}`);
+          }
+          const data = response.data.data;
 
-    // Convert heading to image
-    html2canvas(heading, { scale: 2 }).then((headingCanvas) => { // Increase scale for better quality
-      const headingImgData = headingCanvas.toDataURL("image/png");
-
-      // Convert table to image
-      html2canvas(table, { scale: 2 }).then((tableCanvas) => { // Increase scale for better quality
-        const tableImgData = tableCanvas.toDataURL("image/png");
-        const pdf = new jsPDF("l", "mm", "a4");
-
-        const imgWidth = 297; // Width of A4 page in mm
-        const pageHeight = 210; // Height of A4 page in mm
-        const margin = 10; // Margin in mm
-
-        // Calculate dimensions for heading
-        const headingHeight = (headingCanvas.height * imgWidth) / headingCanvas.width;
-
-        // Add heading image
-        pdf.addImage(headingImgData, "PNG", margin, margin, imgWidth - 2 * margin, headingHeight);
-
-        // Calculate dimensions for table
-        const tableHeight = (tableCanvas.height * imgWidth) / tableCanvas.width;
-
-        // Check if the table fits on the same page
-        if (headingHeight + 2 * margin + tableHeight > pageHeight) {
-          // If not, add heading on the first page and the table on the next
-          pdf.addPage();
+          if (data[subyojnaId]) {
+            setTitle(data[subyojnaId].title || "");
+            setTalukas(data[subyojnaId].talukas || {});
+          } else {
+            console.error("No data found for the given SubyojnaID");
+          }
+        } else {
+          console.error("ID or SubyojnaID is missing");
         }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-        // Add table image with margins
-        pdf.addImage(tableImgData, "PNG", margin, headingHeight + 2 * margin, imgWidth - 2 * margin, tableHeight);
+    fetchData();
+  }, [id, subyojnaId]);
 
-        pdf.save("yojana-table-one.pdf");
+  const generatePDF = () => {
+    const input = document.getElementById("pdf-table");
+    
+    if (!input) {
+      console.error("The element #pdf-table was not found.");
+      return;
+    }
+
+    html2canvas(input, {
+      scale: 2,
+      scrollX: -window.scrollX,
+      scrollY: -window.scrollY,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight,
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "px",
+        format: [canvas.width, canvas.height],
       });
+
+      const imgWidth = pdf.internal.pageSize.getWidth();
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 20, 40, imgWidth - 40, imgHeight - 100); // Adjust positioning
+
+      if (showSignature) {
+        const margin = 40;
+        pdf.setFontSize(12);
+        const yPosition = pdf.internal.pageSize.height - margin;
+
+        pdf.text("Signature: _____________________", pdf.internal.pageSize.width - 150, yPosition, { align: "right" });
+      }
+
+      // Add title to the PDF
+      pdf.setFontSize(16);
+      pdf.text(title, 20, 20); // Adjust position if needed
+
+      pdf.save("YojanaTable.pdf");
+    }).catch(error => {
+      console.error("Error generating PDF:", error);
     });
   };
+
+  // Function to render a combined table when ID is 10
+  const renderCombinedTalukaTable = () => {
+    const allFields = [];
+    const fieldTotals = {}; // Object to keep track of totals for each field
+
+    Object.values(talukas).forEach(taluka => {
+      taluka.form_fields.forEach(field => {
+        if (!allFields.find(f => f.form_field_id === field.form_field_id)) {
+          allFields.push(field);
+          fieldTotals[field.form_field_id] = 0; // Initialize total for this field
+        }
+        const fieldId = field.form_field_id;
+        const value = parseFloat(field.value) || 0; // Convert to number
+        if (fieldTotals[fieldId] !== undefined) {
+          fieldTotals[fieldId] += value;
+        }
+      });
+    });
+
+    return (
+      <Box id="pdf-table" sx={{ mb: 4 }}>
+        <Typography
+          variant="h6"
+          sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
+          className="ff_yatra"
+        >
+          {title}
+        </Typography>
+
+        <TableContainer
+          component={Paper}
+          sx={{ width: "90%", marginLeft: "6.5%" }}
+        >
+          <Table
+            sx={{ 
+              minWidth: 650, 
+              border: 1, 
+              borderColor: "grey.400", 
+              tableLayout: "fixed", // Ensure fixed table layout
+            }}
+            aria-label="combined taluka table"
+          >
+            <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
+              <TableRow>
+                <TableCell
+                  className="ff_yatra"
+                  align="center"
+                  sx={{
+                    border: 1,
+                    borderColor: "grey.400",
+                    padding: "8px",
+                    fontSize: { xs: "0.875rem", sm: "0.975rem" },
+                    fontWeight: 'bold',
+                    width: "200px" // Set desired width
+                  }}
+                >
+                  तालुका
+                </TableCell>
+                {allFields.map(field => (
+                  <TableCell
+                    key={field.form_field_id}
+                    className="ff_yatra"
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      fontSize: { xs: "0.875rem", sm: "0.975rem" },
+                      width: "150px", // Set desired width
+                    }}
+                  >
+                    {field.form_field_name}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Object.values(talukas).map((taluka) => (
+                <TableRow key={taluka.taluka_title}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      width: "200px" // Set desired width
+                    }}
+                  >
+                    {taluka.taluka_title}
+                  </TableCell>
+                  {allFields.map(field => (
+                    <TableCell
+                      key={field.form_field_id}
+                      align="center"
+                      sx={{
+                        border: 1,
+                        borderColor: "grey.400",
+                        padding: "8px",
+                        width: "150px", // Set desired width
+                      }}
+                    >
+                      {taluka.form_fields.find(f => f.form_field_id === field.form_field_id)?.value || ""}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+              <TableRow>
+                <TableCell
+                  align="center"
+                  sx={{
+                    border: 1,
+                    borderColor: "grey.400",
+                    padding: "8px",
+                    fontWeight: 'bold',
+                    width: "200px" // Set desired width
+                  }}
+                >
+                  Total
+                </TableCell>
+                {allFields.map(field => (
+                  <TableCell
+                    key={field.form_field_id}
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      width: "150px", // Set desired width
+                    }}
+                  >
+                    {fieldTotals[field.form_field_id]?.toFixed(2) || "0"}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    );
+  };
+
+  // Function to render a taluka's data (for non-ID 10 case)
+  const renderTalukaTable = (taluka) => {
+    return (
+      <Box id="pdf-table" sx={{ mb: 4 }} key={taluka.taluka_title}>
+        <Typography
+          variant="h6"
+          sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
+          className="ff_yatra"
+        >
+          {taluka.taluka_title}
+        </Typography>
+
+        <TableContainer
+          component={Paper}
+          sx={{ width: "90%", marginLeft: "6.5%" }}
+        >
+          <Table
+            sx={{ 
+              minWidth: 650, 
+              border: 1, 
+              borderColor: "grey.400", 
+              tableLayout: "fixed", // Ensure fixed table layout
+            }}
+            aria-label="simple table"
+          >
+            <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
+              <TableRow>
+                {taluka.form_fields.map(field => (
+                  <TableCell
+                    key={field.form_field_id}
+                    className="ff_yatra"
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      fontSize: { xs: "0.875rem", sm: "0.975rem" },
+                      width: "200px" // Set desired width
+                    }}
+                  >
+                    {field.form_field_name}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                {taluka.form_fields.map(field => (
+                  <TableCell
+                    key={field.form_field_id}
+                    className="ff_yatra"
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      width: "300px" // Set desired width
+                    }}
+                  >
+                    {field.value}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    );
+  };
+
+  if (!title || Object.keys(talukas).length === 0) {
+    return (
+      <Box
+        sx={{
+          paddingLeft: { xs: "20px", sm: "10px" },
+          marginTop: { xs: "50px", sm: "80px" },
+        }}
+      >
+        <TopBar />
+        <Typography
+          sx={{
+            fontSize: {
+              xs: "20px",
+              sm: "1.5rem",
+            },
+          }}
+          width={"90%"}
+          marginLeft={"5%"}
+          variant="h5"
+          align="center"
+          gutterBottom
+          pt={1}
+          className="ff_yatra"
+        >
+          Loading data...
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -67,155 +346,42 @@ const YojanaTableOne = () => {
       }}
     >
       <TopBar />
-      <Typography
-        ref={headingRef}
-        sx={{
-          fontSize: {
-            xs: "20px",
-            sm: "1.5rem",
-          },
-        }}
-        width={"90%"}
-        marginLeft={"5%"}
-        variant="h5"
-        align="center"
-        gutterBottom
-        pt={1}
-        className="ff_yatra"
-      >
-        माहे एप्रिल व मे २०२४ या कालावधीमध्‍ये अवेळी पाऊस/गारपीठ/वादळी वारे/विज पडुन मयत जनावरांचा तपशिल
-      </Typography>
-     
-      <TableContainer
-        component={Paper}
-        sx={{ width: "90%", marginLeft: "6.5%" }}
-        ref={tableRef}
-      >
-        <Table
-          sx={{ minWidth: 650, border: 1, borderColor: "grey.400" }}
-          aria-label="simple table"
-        >
-          <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
-            <TableRow>
-              {[
-                "अ. क्र",
-                "तालुका",
-                "मयत झालेल्‍या जनावरांची संख्‍या",
-                "PM झालेल्‍या जनावरांची संख्‍या",
-                "बील तयार झालेली संख्‍या",
-                "कोषागारामध्‍ये दाखल बिलाची संख्‍या",
-                "रजिस्‍ट्रेशन झालेली संख्‍या",
-                "प्रलंबित",
-                "पशुधन मालकास निधी वितरण संख्‍या",
-                "शेरा",
-              ].map((header) => (
-                <TableCell
-                  key={header}
-                  className="ff_yatra"
-                  align="center"
-                  sx={{
-                    border: 1,
-                    borderColor: "grey.400",
-                    padding: "8px",
-                    fontSize: { xs: "0.875rem", sm: "0.975rem" },
-                  }}
-                >
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {[
-              {
-                id: 1,
-                taluka: "जालना",
-                details: [12, 12, 9, 9, 0, 12, 0, ""],
-              },
-              {
-                id: 2,
-                taluka: "बदनापुर",
-                details: [8, 3, 3, 0, 0, 8, 0, ""],
-              },
-              {
-                id: 3,
-                taluka: "भोकरदन",
-                details: [42, 42, 20, 20, 20, 42, 0, ""],
-              },
-              {
-                id: 4,
-                taluka: "जाफ्राबाद",
-                details: [18, 18, 10, 10, 3, 18, 0, "माहीती अप्राप्‍त"],
-              },
-              {
-                id: 5,
-                taluka: "परतुर",
-                details: [6, 6, 6, 6, 0, 5, 1, ""],
-              },
-              {
-                id: 6,
-                taluka: "मंठा",
-                details: [7, 6, 5, 2, 0, 7, 0, ""],
-              },
-              {
-                id: 7,
-                taluka: "अंबड",
-                details: [11, 8, 8, 0, 0, 11, 0, ""],
-              },
-              {
-                id: 8,
-                taluka: "घनसावंगी",
-                details: [ 21, 20, 15,15, 0, 21,0, ""],
-              },
-              {
-                id: "",
-                taluka: "एकुण",
-                details: [ 125, 115, 76, 62, 23, 124,1, ""],
-              },
-            ].map((row) => (
-              <TableRow key={row.id}>
-                <TableCell
-                  className="ff_yatra"
-                  align="center"
-                  sx={{ border: 1, borderColor: "grey.400", padding: "8px" }}
-                >
-                  {row.id}
-                </TableCell>
-                <TableCell
-                  className="ff_yatra"
-                  align="center"
-                  sx={{ border: 1, borderColor: "grey.400", padding: "8px" }}
-                >
-                  {row.taluka}
-                </TableCell>
-                {row.details.map((detail, index) => (
-                  <TableCell
-                    key={index}
-                    className="ff_yatra"
-                    align="center"
-                    sx={{
-                      border: 1,
-                      borderColor: "grey.400",
-                      padding: "8px",
-                    }}
-                  >
-                    {detail}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Box sx={{display:"flex", justifyContent:"end", marginRight: "3.5%", marginTop:"1%" }}>
+      <Box sx={{ mb: 4, textAlign: "center" }}>
         <Button
           variant="contained"
-          sx={{ marginBottom: "20px", backgroundColor: "#028A0F" }}
-          onClick={downloadPDF}  
+          color="primary"
+          onClick={generatePDF}
+          sx={{ mb: 2, padding: "10px 20px", fontSize: "1rem" }}
         >
-          Download PDF
+          Download as PDF
         </Button>
       </Box>
+      {id === '10' ? (
+        renderCombinedTalukaTable()
+      ) : (
+        <>
+          <Typography
+            sx={{
+              fontSize: {
+                xs: "20px",
+                sm: "1.5rem",
+              },
+            }}
+            width={"90%"}
+            marginLeft={"5%"}
+            variant="h5"
+            align="center"
+            gutterBottom
+            pt={1}
+            className="ff_yatra"
+          >
+            {title}
+          </Typography>
+
+          {/* Render the tables for all talukas individually */}
+          {Object.values(talukas).map(taluka => renderTalukaTable(taluka))}
+        </>
+      )}
     </Box>
   );
 };

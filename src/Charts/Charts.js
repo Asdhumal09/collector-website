@@ -107,7 +107,7 @@ const PieChartComponent = () => {
                     Pie Chart {index + 1}
                   </Typography>
                   <ResponsiveContainer width="100%" height={300}>
-                  <PieChart style={{ cursor: "pointer" }}>
+                    <PieChart style={{ cursor: "pointer" }}>
                       <Pie
                         data={data}
                         dataKey="value"
@@ -128,7 +128,7 @@ const PieChartComponent = () => {
                             key={`cell-${i}`}
                             fill={
                               getColorPalette(index)[
-                                i % getColorPalette(index).length
+                              i % getColorPalette(index).length
                               ]
                             }
                           />

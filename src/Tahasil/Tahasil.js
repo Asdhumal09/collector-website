@@ -1,63 +1,70 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  CssBaseline,
-  Container,
-  Typography,
-  Button,
-  Grid,
-} from "@mui/material";
-import TopBar from "../TopBar/TopBar";
+import { Box, CssBaseline, Typography, Button, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import apiClient from "../apiClient/ApiClient";
+import TopBar from "../TopBar/TopBar";
 
 const Tahasil = () => {
+  const [talukas, setTalukas] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTalukaId, setModalTalukaId] = useState(null);
+  const navigate = useNavigate();
+  const buttonWidth = 200;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await apiClient.get("/getAllTaluka"); // Use apiClient
-        console.log("taluka", response.data);
+        const response = await apiClient.get("/getAllTaluka");
+        if (Array.isArray(response.data)) {
+          setTalukas(response.data);
+        } else if (response.data && Array.isArray(response.data.data)) {
+          setTalukas(response.data.data);
+        } else {
+          console.error("Unexpected response format:", response.data);
+          setTalukas([]);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
+        setTalukas([]);
       }
     };
 
     fetchData();
   }, []);
-  const buttonWidth = 200; 
 
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (date) => {
-    return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+  const handleNavigate = (talukaId) => {
+    if (talukaId == '10') {
+      setModalTalukaId(talukaId);
+      setIsModalOpen(true);
+    } else {
+      navigate(`/tahasiltwo/${talukaId}`);
+    }
   };
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString();
+  const handleModalActionGraph = (action) => {
+    setIsModalOpen(false);
+    navigate(`/sgyOne/${action}`); 
+  };
+  const handleModalActionCard = (action) => {
+    setIsModalOpen(false);
+    navigate(`/cards/${action}`); 
+  };
+  const handleModalAll = (action) => {
+    setIsModalOpen(false);
+    navigate(`/tahasiltwo/${action}`); 
   };
 
-  const navigate = useNavigate();
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
-  const handleNavigate = () => {
-    navigate("/tahasiltwo");
-  };
-  const handleNavigateToChart = () => {
-    navigate("/chart");
-  };
+  // Group talukas into rows of decreasing lengths
+  const groupedTalukas = [
+    talukas.slice(0, 4),
+    talukas.slice(4, 7),
+    talukas.slice(7, 9),
+    talukas.slice(9, 10),
+  ];
 
   return (
     <Box
@@ -73,15 +80,7 @@ const Tahasil = () => {
       }}
     >
       <CssBaseline />
-      {/* Main Content */}
       <Box
-        sx={{
-          background: "#fff",
-          boxShadow: "0px 0px 12px #d7d7d763",
-          padding: { xs: 0, sm: 4 },
-
-          width: "94%",
-        }}
       >
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Typography
@@ -100,252 +99,98 @@ const Tahasil = () => {
             pt={6}
             sx={{
               display: "flex",
-              justifyContent: "center",
+              flexDirection: "column",
+              alignItems: "center",
               paddingRight: { xs: "0", sm: "10" },
             }}
           >
-            <Grid container spacing={4} justifyContent="center">
-              {/* Row 1: 4 Buttons */}
-              <Grid container item spacing={4} justifyContent="center">
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
+            {groupedTalukas.map((group, groupIndex) => (
+              <Grid
+                container
+                spacing={4}
+                justifyContent="center"
+                key={groupIndex}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  mb: 2,
+                }}
+              >
+                {group.map((taluka) => (
+                  <Grid item key={taluka.id}>
+                    <Button
+                      onClick={() => handleNavigate(taluka.taluka_id)}
+                      className="ff_yatra"
+                      variant="contained"
+                      sx={{
+                        height: 60,
+                        fontSize: 20,
+                        width: buttonWidth,
                         background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    जालना (ग्रामीण)
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    जालना (शहर)
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    बदनापुर
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    भोकरदन
-                  </Button>
-                </Grid>
+                          taluka.status === 2
+                            ? "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)"
+                            : "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
+                        transition: "background 0.3s, transform 0.3s",
+                        "&:hover": {
+                          background:
+                            taluka.status === 2
+                              ? "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)"
+                              : "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
+                          transform: "scale(1.05)",
+                        },
+                      }}
+                    >
+                      {taluka.taluka_title}
+                    </Button>
+                  </Grid>
+                ))}
               </Grid>
-              {/* Row 2: 3 Buttons */}
-              <Grid container item spacing={4} justifyContent="center">
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    जाफ्राबाद
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    परतुर
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    मंठा
-                  </Button>
-                </Grid>
-              </Grid>
-              {/* Row 3: 2 Buttons */}
-              <Grid container item spacing={4} justifyContent="center">
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    अंबड
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    onClick={handleNavigate}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                      transition: "background 0.3s, transform 0.3s",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    घनसावंगी
-                  </Button>
-                </Grid>
-              </Grid>
-              {/* Row 4: 1 Button */}
-              <Grid container item justifyContent="center">
-                <Grid item>
-                  <Button
-                    onClick={handleNavigateToChart}
-                    className="ff_yatra"
-                    variant="contained"
-                    sx={{
-                      height: 60,
-                      fontSize: 20,
-                      width: buttonWidth,
-                      background:
-                        "linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%)",
-                      transition: "background 0.3s, transform 0.3s, color 0.3s",
-                      color: "#ffffff",
-                      "&:hover": {
-                        background:
-                          "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)",
-                        color: "#ffffff",
-                        transform: "scale(1.05)",
-                      },
-                    }}
-                  >
-                    जिल्हा अहवाल
-                  </Button>
-                </Grid>
-              </Grid>
-            </Grid>
+            ))}
           </Box>
         </Box>
       </Box>
       <TopBar />
+
+      {/* Custom Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+            <h2 className="text-lg font-semibold mb-4">Select an Action</h2>
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={() => handleModalActionGraph(10)}
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
+              >
+                View in Graph
+              </button>
+              <button
+                onClick={() => handleModalActionCard(10)}
+                className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
+              >
+                View in Cards
+              </button>
+              <button
+                onClick={() => handleModalAll(10)}
+                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+              >
+                View All Yojna
+              </button>
+              <button
+                onClick={handleCloseModal}
+                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="map">
+
+      </div>
     </Box>
+    
   );
 };
-
+ 
 export default Tahasil;
