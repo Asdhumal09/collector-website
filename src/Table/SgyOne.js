@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -9,7 +9,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import TopBar from '../TopBar/TopBar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios'; // Ensure axios is imported
 
 // Unique data for each chart
 const dataSets = [
@@ -40,7 +41,24 @@ const colorSchemes = [
 ];
 
 const Charts = () => {
+  const { id } = useParams(); // Move useParams inside the component
   const navigate = useNavigate();
+  const [apiData, setApiData] = useState(null); // State to hold API response
+
+  // Function to fetch data from API
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`/getAllYojna_subyojna/${id}`);
+      console.log('API Response:', response); // Log the API response
+      setApiData(response.data); // Store data in state
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // Fetch data when component mounts
+  }, [id]); // Add id as a dependency to refetch if id changes
 
   const handleAllYojna = (id) => {
     navigate(`/tahasiltwo/${id}`);
