@@ -32,8 +32,10 @@ const YojanaTableOne = () => {
             response = await apiClient.get(`/getAllformfields/${subyojnaId}`);
           } else {
             response = await apiClient.get(`/getformfields_with_taluka/${id}/${subyojnaId}`);
+          
           }
           const data = response.data.data;
+          console.log("dataaaaa", data)
 
           if (data[subyojnaId]) {
             setTitle(data[subyojnaId].title || "");
