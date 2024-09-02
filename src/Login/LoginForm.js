@@ -4,8 +4,7 @@ import Lottie from 'react-lottie-player';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import Axios
-import backgroundAnimationData from '../Login/svgImage.json';
+import backgroundAnimationData from '../Login/logo.png';
 import imgOne from '../Login/bgImgOne.svg';
 import imgTwo from '../Login/bgImgTwo.svg';
 import Visibility from '@mui/icons-material/Visibility';
@@ -18,27 +17,37 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-
   const handleSubmit = async () => {
-    try {
-      const apiUrl = '/login'; 
 
+    try {
+      const apiUrl = '/login';
       const response = await apiClient.post(apiUrl, { email, password });
-      console.log("Response:", response);
+  
+      console.log("Full Response Object:", response);
 
       if (response.data && response.data.access_token) {
-       
         localStorage.setItem('accessToken', response.data.access_token);
+        localStorage.setItem('role', response.data.data.role);
+
+        if (response.data.data.role == "1") {
+          localStorage.setItem('taluka', response.data.data.taluka);
+      
+          navigate('/home');
+        } else if (response.data.data.role == "2") {
+          localStorage.setItem('taluka', response.data.data.taluka.taluka_title);
+          navigate('/tahasiltwo/2');
+        } else {
+          console.error('Unknown role:', response.data.role);
+          toast.error('Login successful, but role is unknown.', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
 
         toast.success('Login Successful! Welcome back!', {
           position: "top-right",
           autoClose: 2000,
         });
-
-
-        setTimeout(() => {
-          navigate('/home');
-        }, 500);
       } else {
         toast.error(response.data.message || 'Login failed. Please try again.', {
           position: "top-right",
@@ -54,8 +63,6 @@ const LoginForm = () => {
     }
   };
 
-  
-
   return (
     <Box
       position="relative"
@@ -69,9 +76,8 @@ const LoginForm = () => {
         backgroundColor: '#f5f5f9'
       }}
     >
-      <ToastContainer /> {/* Toast Container for displaying toasts */}
+      <ToastContainer />
 
-      {/* Background Images */}
       <Box
         sx={{
           position: 'absolute',
@@ -87,7 +93,7 @@ const LoginForm = () => {
           alt="Top Left Background"
           style={{
             position: 'absolute',
-            top: '14%',
+            top: '8%',
             left: '56%',
             width: '150px',
             height: '150px',
@@ -110,7 +116,6 @@ const LoginForm = () => {
         />
       </Box>
 
-      {/* Login Form */}
       <Box
         display="flex"
         justifyContent="center"
@@ -129,18 +134,19 @@ const LoginForm = () => {
             alignItems="center"
             justifyContent="center"
           >
-            <Lottie
+            {/* <Lottie
               loop
               animationData={backgroundAnimationData}
               play
               style={{ width: 100, height: 100, marginBottom: 5 }}
-            />
-            <Typography
-              variant="h4"
+            /> */}
+               <img src={backgroundAnimationData} alt="Logo" style={{ width: 100, marginBottom: 16 }} />
+               <Typography className='ff_baloo'
+              variant="h5"
               component="h1"
               sx={{ fontWeight: 'bold', color: '#333' }}
             >
-              Login
+             जिल्हाधिकारी कार्यालय जालना
             </Typography>
           </Box>
           <TextField
@@ -206,7 +212,7 @@ const LoginForm = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
+              onClick={handleSubmit} // Pass the function reference
               sx={{
                 padding: '10px 0',
                 borderRadius: 10,

@@ -18,6 +18,8 @@ import PieChartComponent from './Charts/Charts';
 import SgyOne from './Table/SgyOne';
 
 import PrivateRoute from './components/PrivateRoute';
+import TahsilTable from './YojanaTable/TahsilTable';
+import { XDChart } from './Charts/3DChart';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -46,12 +48,14 @@ function App() {
           <Route path="sgyOne/:id" element={<PrivateRoute element={SgyOne} />} />
           <Route path="cards/:id" element={<PrivateRoute element={Cards} />} />
           <Route path="/tahasiltwo/:id/tableone/:subyojnaId" element={<PrivateRoute element={YojanaTableOne} />} />
+          <Route path="/tahasiltwo/:id/tahsilOne/:subyojnaId" element={<PrivateRoute element={TahsilTable} />} />
           <Route path="/tabletwo" element={<PrivateRoute element={YojanaTableTwo} />} />
           <Route path="/tablethree" element={<PrivateRoute element={YojanaTableThree} />} />
           <Route path="/tablefour" element={<PrivateRoute element={YojanaTableFour} />} />
           <Route path="/tableonesgy" element={<PrivateRoute element={TableOne} />} />
           <Route path="/datatable" element={<PrivateRoute element={DataTable} />} />
           <Route path="/chart" element={<PrivateRoute element={PieChartComponent} />} />
+          <Route path="/3dchart" element={<PrivateRoute element={XDChart} />}/>
         </Routes>
       )}
     </>

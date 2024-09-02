@@ -216,7 +216,7 @@ const TopBar = () => {
               }}
             ></Box>
             {/* Avatar with Logout Button */}
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={4} alignItems="center">
               <Stack direction="row" spacing={1} marginRight={{ xs: 1, sm: 3 }}>
                 <StyledBadge
                   overlap="circular"
@@ -238,12 +238,12 @@ const TopBar = () => {
                 variant="outlined"
                 sx={{
                   fontSize: { xs: "1rem", sm: "1rem" },
-                  padding: { xs: "4px", sm: "6px 16px" },
+                  padding: { xs: "4px", sm: "5px 16px" },
                   minWidth: { xs: "30px", sm: "60px" },
                   justifyContent: "center",
                   textTransform: "none",
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'center', 
                 }}
               >
                 <LogoutIcon />
