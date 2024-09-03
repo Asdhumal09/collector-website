@@ -131,7 +131,9 @@ const RoleWarningModal = ({ open, onClose, onSubmit, yojnaId }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Access Restricted</DialogTitle>
+      <DialogTitle>Enter Your Password
+        
+      </DialogTitle>
       <DialogContent>
         <Typography>
           You do not have the necessary permissions to access this tab.
