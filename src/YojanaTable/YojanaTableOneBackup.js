@@ -22,10 +22,10 @@ const YojanaTableOne = () => {
   const [showSignature, setShowSignature] = useState(true);
   const [title, setTitle] = useState("");
   const [talukas, setTalukas] = useState({});
-  const [editableTalukas, setEditableTalukas] = useState({});
   const [role, setRole] = useState(null);
   const { id, subyojnaId } = useParams();
   
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,20 +42,6 @@ const YojanaTableOne = () => {
           if (data[subyojnaId]) {
             setTitle(data[subyojnaId].title || "");
             setTalukas(data[subyojnaId].talukas || {});
-
-            // Create empty editable talukas data
-            const emptyEditableTalukas = {};
-            Object.keys(data[subyojnaId].talukas).forEach(talukaTitle => {
-              emptyEditableTalukas[talukaTitle] = {
-                taluka_title: talukaTitle,
-                form_fields: data[subyojnaId].talukas[talukaTitle].form_fields.map(field => ({
-                  form_field_id: field.form_field_id,
-                  form_field_name: field.form_field_name,
-                  value: ""
-                }))
-              };
-            });
-            setEditableTalukas(emptyEditableTalukas);
           } else {
             console.error("No data found for the given SubyojnaID");
           }
@@ -117,33 +103,19 @@ const YojanaTableOne = () => {
     });
   };
 
-  const handleFieldChange = (event, talukaTitle, fieldId, tableType) => {
+  const handleFieldChange = (event, talukaTitle, fieldId) => {
     const newValue = event.target.value;
-    if (tableType === 'prefilled') {
-      setTalukas(prevTalukas => {
-        const updatedTalukas = { ...prevTalukas };
-        const taluka = updatedTalukas[talukaTitle];
-        if (taluka) {
-          const field = taluka.form_fields.find(f => f.form_field_id === fieldId);
-          if (field) {
-            field.value = newValue;
-          }
+    setTalukas(prevTalukas => {
+      const updatedTalukas = { ...prevTalukas };
+      const taluka = updatedTalukas[talukaTitle];
+      if (taluka) {
+        const field = taluka.form_fields.find(f => f.form_field_id === fieldId);
+        if (field) {
+          field.value = newValue;
         }
-        return updatedTalukas;
-      });
-    } else {
-      setEditableTalukas(prevTalukas => {
-        const updatedTalukas = { ...prevTalukas };
-        const taluka = updatedTalukas[talukaTitle];
-        if (taluka) {
-          const field = taluka.form_fields.find(f => f.form_field_id === fieldId);
-          if (field) {
-            field.value = newValue;
-          }
-        }
-        return updatedTalukas;
-      });
-    }
+      }
+      return updatedTalukas;
+    });
   };
 
   const handleSubmit = async () => {
@@ -155,110 +127,7 @@ const YojanaTableOne = () => {
     }
   };
 
-  const renderEditableTalukaTable = () => {
-    return (
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h6"
-          sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
-          className="ff_yatra"
-        >
-          Editable Talukas
-        </Typography>
-
-        <TableContainer
-          component={Paper}
-          sx={{ width: "90%", marginLeft: "6.5%" }}
-        >
-          <Table
-            sx={{ 
-              minWidth: 650, 
-              border: 1, 
-              borderColor: "grey.400", 
-              tableLayout: "fixed",
-            }}
-            aria-label="editable taluka table"
-          >
-            <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
-              <TableRow>
-                <TableCell
-                  className="ff_yatra"
-                  align="center"
-                  sx={{
-                    border: 1,
-                    borderColor: "grey.400",
-                    padding: "8px",
-                    fontSize: { xs: "0.875rem", sm: "0.975rem" },
-                    fontWeight: 'bold',
-                    width: "200px"
-                  }}
-                >
-                  तालुका
-                </TableCell>
-                {Object.values(editableTalukas).length > 0 && 
-                  Object.values(editableTalukas)[0].form_fields.map(field => (
-                    <TableCell
-                      key={field.form_field_id}
-                      className="ff_yatra"
-                      align="center"
-                      sx={{
-                        border: 1,
-                        borderColor: "grey.400",
-                        padding: "8px",
-                        fontSize: { xs: "0.875rem", sm: "0.975rem" },
-                        width: "150px",
-                      }}
-                    >
-                      {field.form_field_name}
-                    </TableCell>
-                  ))
-                }
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.values(editableTalukas).map((taluka) => (
-                <TableRow key={taluka.taluka_title}>
-                  <TableCell
-                    align="center"
-                    sx={{
-                      border: 1,
-                      borderColor: "grey.400",
-                      padding: "8px",
-                      width: "200px"
-                    }}
-                  >
-                    {taluka.taluka_title}
-                  </TableCell>
-                  {taluka.form_fields.map(field => (
-                    <TableCell
-                      key={field.form_field_id}
-                      align="center"
-                      sx={{
-                        border: 1,
-                        borderColor: "grey.400",
-                        padding: "8px",
-                        width: "150px",
-                      }}
-                    >
-                      <TextField
-                        value={field.value || ""}
-                        onChange={(e) => handleFieldChange(e, taluka.taluka_title, field.form_field_id, 'editable')}
-                        variant="outlined"
-                        size="small"
-                        sx={{ width: '100%' }}
-                      />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-    );
-  };
-
-  const renderPrefilledTalukaTable = () => {
+  const renderCombinedTalukaTable = () => {
     const allFields = [];
     const fieldTotals = {};
 
@@ -270,18 +139,20 @@ const YojanaTableOne = () => {
         }
         const fieldId = field.form_field_id;
         const value = parseFloat(field.value) || 0;
-        fieldTotals[fieldId] += value;
+        if (fieldTotals[fieldId] !== undefined) {
+          fieldTotals[fieldId] += value;
+        }
       });
     });
 
     return (
-      <Box sx={{ mb: 4 }}>
+      <Box id="pdf-table" sx={{ mb: 4 }}>
         <Typography
           variant="h6"
           sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
           className="ff_yatra"
         >
-          Prefilled Talukas
+          {title}
         </Typography>
 
         <TableContainer
@@ -295,7 +166,7 @@ const YojanaTableOne = () => {
               borderColor: "grey.400", 
               tableLayout: "fixed",
             }}
-            aria-label="prefilled taluka table"
+            aria-label="combined taluka table"
           >
             <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
               <TableRow>
@@ -345,7 +216,7 @@ const YojanaTableOne = () => {
                   >
                     {taluka.taluka_title}
                   </TableCell>
-                  {taluka.form_fields.map(field => (
+                  {allFields.map(field => (
                     <TableCell
                       key={field.form_field_id}
                       align="center"
@@ -356,13 +227,17 @@ const YojanaTableOne = () => {
                         width: "150px",
                       }}
                     >
-                      <TextField
-                        value={field.value || ""}
-                        onChange={(e) => handleFieldChange(e, taluka.taluka_title, field.form_field_id, 'prefilled')}
-                        variant="outlined"
-                        size="small"
-                        sx={{ width: '100%' }}
-                      />
+                      {role !== '1' ? (
+                        <TextField
+                          value={taluka.form_fields.find(f => f.form_field_id === field.form_field_id)?.value || ""}
+                          onChange={(e) => handleFieldChange(e, taluka.taluka_title, field.form_field_id)}
+                          variant="outlined"
+                          size="small"
+                          sx={{ width: '100%' }}
+                        />
+                      ) : (
+                        taluka.form_fields.find(f => f.form_field_id === field.form_field_id)?.value || ""
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -374,25 +249,25 @@ const YojanaTableOne = () => {
                     border: 1,
                     borderColor: "grey.400",
                     padding: "8px",
-                    fontWeight: "bold",
-                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    fontWeight: 'bold',
+                    width: "200px"
                   }}
                 >
                   Total
                 </TableCell>
                 {allFields.map(field => (
                   <TableCell
-                    key={`total-${field.form_field_id}`}
+                    key={field.form_field_id}
                     align="center"
                     sx={{
                       border: 1,
                       borderColor: "grey.400",
                       padding: "8px",
-                      fontWeight: "bold",
-                      backgroundColor: "rgba(0, 0, 0, 0.05)",
+                      width: "150px",
+                      fontWeight: 'bold',
                     }}
                   >
-                    {fieldTotals[field.form_field_id]}
+                    {fieldTotals[field.form_field_id] || 0}
                   </TableCell>
                 ))}
               </TableRow>
@@ -403,52 +278,171 @@ const YojanaTableOne = () => {
     );
   };
 
-  return (
-    <>
-      <TopBar />
-      <Box
-        sx={{
-          flexGrow: 1,
-          backgroundColor: "background.paper",
-          padding: 2,
-          mt: "90px",
-        }}
-      >
+  const renderTalukaTable = (taluka) => {
+    return (
+      <Box id="pdf-table" sx={{ mb: 4 }} key={taluka.taluka_title}>
         <Typography
-          variant="h4"
-          sx={{ mb: 4, fontWeight: "bold", textAlign: "center" }}
+          variant="h6"
+          sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
           className="ff_yatra"
         >
-          {title}
+          {taluka.taluka_title}
         </Typography>
-        
-        {renderEditableTalukaTable()}
 
-        {renderPrefilledTalukaTable()}
+        <TableContainer
+          component={Paper}
+          sx={{ width: "90%", marginLeft: "6.5%" }}
+        >
+          <Table
+            sx={{ 
+              minWidth: 650, 
+              border: 1, 
+              borderColor: "grey.400", 
+              tableLayout: "fixed",
+            }}
+            aria-label="simple table"
+          >
+            <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
+              <TableRow>
+                {taluka.form_fields.map(field => (
+                  <TableCell
+                    key={field.form_field_id}
+                    className="ff_yatra"
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      fontSize: { xs: "0.875rem", sm: "0.975rem" },
+                      width: "200px"
+                    }}
+                  >
+                    {field.form_field_name}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                {taluka.form_fields.map(field => (
+                  <TableCell
+                    key={field.form_field_id}
+                    className="ff_yatra"
+                    align="center"
+                    sx={{
+                      border: 1,
+                      borderColor: "grey.400",
+                      padding: "8px",
+                      width: "300px"
+                    }}
+                  >
+                    {role !== '1' ? (
+                      <TextField
+                        value={field.value || ""}
+                        onChange={(e) => handleFieldChange(e, taluka.taluka_title, field.form_field_id)}
+                        variant="outlined"
+                        size="small"
+                        sx={{ width: '100%' }}
+                      />
+                    ) : (
+                      field.value
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    );
+  };
 
-        <Box sx={{ textAlign: "center", mt: 4 }}>
+  if (!title || Object.keys(talukas).length === 0) {
+    return (
+      <Box
+        sx={{
+          paddingLeft: { xs: "20px", sm: "10px" },
+          marginTop: { xs: "50px", sm: "80px" },
+        }}
+      >
+        <TopBar />
+        <Typography
+          sx={{
+            fontSize: {
+              xs: "20px",
+              sm: "1.5rem",
+            },
+          }}
+          width={"90%"}
+          marginLeft={"5%"}
+          variant="h5"
+          align="center"
+          gutterBottom
+          pt={1}
+          className="ff_yatra"
+        >
+          Loading data...
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        paddingLeft: { xs: "20px", sm: "10px" },
+        marginTop: { xs: "50px", sm: "80px" },
+      }}
+    >
+      <TopBar />
+      <Box sx={{ mb: 4, textAlign: "center" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={generatePDF}
+          sx={{ mb: 2, padding: "10px 20px", fontSize: "1rem" }}
+        >
+          Download as PDF
+        </Button>
+        {role !== '1' && (
           <Button
             variant="contained"
-            color="primary"
-            sx={{ marginRight: 2 }}
-            onClick={generatePDF}
+            color="secondary"
+            onClick={handleSubmit}
+            sx={{ padding: "10px 20px", fontSize: "1rem" }}
           >
-            Generate PDF
+            Submit Changes
           </Button>
-          {role === "admin" && (
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleSubmit}
-            >
-              Submit Data
-            </Button>
-          )}
-        </Box>
+        )}
       </Box>
-    </>
+      {id === '10' ? (
+        renderCombinedTalukaTable()
+      ) : (
+        <>
+          <Typography
+            sx={{
+              fontSize: {
+                xs: "20px",
+                sm: "1.5rem",
+              },
+            }}
+            width={"90%"}
+            marginLeft={"5%"}
+            variant="h5"
+            align="center"
+            gutterBottom
+            pt={1}
+            className="ff_yatra"
+          >
+            {title}
+          </Typography>
+
+          {/* Render the tables for all talukas individually */}
+          {Object.values(talukas).map(taluka => renderTalukaTable(taluka))}
+        </>
+      )}
+    </Box>
   );
 };
 
 export default YojanaTableOne;
-    
