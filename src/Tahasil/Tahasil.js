@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../apiClient/ApiClient";
 import TopBar from "../TopBar/TopBar";
 import MapImage from "../images/map-color-name.svg"; 
-import Logo from "../Login/logo.png"
+import Logo from "../Tahasil/logo.png"
 
 const Tahasil = () => {
   const [talukas, setTalukas] = useState([]);
