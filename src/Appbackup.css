@@ -100,7 +100,7 @@
 
 
 .map {
-  /* background-image: url('./images/map-color-2.svg'); */
+  background-image: url('./images/map-color-2.svg');
   height: 100vh !important;
   width: 100vw; /* Ensure it spans the full viewport width */
   background-repeat: no-repeat;
@@ -112,16 +112,6 @@
   left: 0; /* Align it to the left edge */
 }
 
-.map-image img{
-  height: 520px;
-}
-.map-image{ 
-  display: flex;
-  justify-content: center;
-}
-.logo  {
-  height: 80px !important; 
-}
 
 /* Login Form Start */
 

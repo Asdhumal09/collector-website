@@ -3,18 +3,21 @@ import { Box, CssBaseline, Typography, Button, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../apiClient/ApiClient";
 import TopBar from "../TopBar/TopBar";
+import MapImage from "../images/map-color-name.svg"; 
+import Logo from "../Login/logo.png"
 
 const Tahasil = () => {
   const [talukas, setTalukas] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTalukaId, setModalTalukaId] = useState(null);
   const navigate = useNavigate();
-  const buttonWidth = 200;
+  const buttonWidth = 180;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await apiClient.get("/getAllTaluka");
+        console.log("response", response.data.data[9].taluka_id);
         if (Array.isArray(response.data)) {
           setTalukas(response.data);
         } else if (response.data && Array.isArray(response.data.data)) {
@@ -33,7 +36,7 @@ const Tahasil = () => {
   }, []);
 
   const handleNavigate = (talukaId) => {
-    if (talukaId == '10') {
+    if (talukaId == "10") {
       setModalTalukaId(talukaId);
       setIsModalOpen(true);
     } else {
@@ -43,15 +46,15 @@ const Tahasil = () => {
 
   const handleModalActionGraph = (action) => {
     setIsModalOpen(false);
-    navigate(`/sgyOne/${action}`); 
+    navigate(`/sgyOne/${action}`);
   };
   const handleModalActionCard = (action) => {
     setIsModalOpen(false);
-    navigate(`/cards/${action}`); 
+    navigate(`/cards/${action}`);
   };
   const handleModalAll = (action) => {
     setIsModalOpen(false);
-    navigate(`/tahasiltwo/${action}`); 
+    navigate(`/tahasiltwo/${action}`);
   };
 
   const handleCloseModal = () => {
@@ -60,9 +63,9 @@ const Tahasil = () => {
 
   // Group talukas into rows of decreasing lengths
   const groupedTalukas = [
-    talukas.slice(0, 4),
+    talukas.slice(0, 6),
     talukas.slice(4, 7),
-    talukas.slice(7, 9),
+    talukas.slice(6, 9),
     talukas.slice(9, 10),
   ];
 
@@ -75,81 +78,89 @@ const Tahasil = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        marginTop: { xs: "20px", sm: "50px" },
-        marginLeft: "25px",
+        marginTop: { xs: "20px", sm: "5%" },
       }}
     >
       <CssBaseline />
-      <Box
-      >
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Typography
-            variant="h2"
-            textAlign={"center"}
-            className="ff_yatra"
-            sx={{
-              fontSize: { xs: "2rem", sm: "3rem", md: "4rem" },
-              paddingRight: { xs: 0, sm: 10 },
-            }}
-          >
-            तहसील कार्यालये, जालना
-          </Typography>
+      <Box>
+        <TopBar />
 
-          <Box
-            pt={6}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              paddingRight: { xs: "0", sm: "10" },
-            }}
-          >
-            {groupedTalukas.map((group, groupIndex) => (
-              <Grid
-                container
-                spacing={4}
-                justifyContent="center"
-                key={groupIndex}
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mb: 2,
-                }}
-              >
-                {group.map((taluka) => (
-                  <Grid item key={taluka.id}>
-                    <Button
-                      onClick={() => handleNavigate(taluka.taluka_id)}
-                      className="ff_yatra"
-                      variant="contained"
+        <Grid container spacing={6} justifyContent={"center"} alignItems={"center"}>
+          {/* Left Grid */}
+          <Grid item xs={12} md={5}>
+            <Box className="map-image" p={2} boxShadow={"rgba(0, 0, 0, 0.1) 0px 10px 30px 4px;"} >
+           
+              <img src={MapImage} alt="Map" />
+              <Box>
+           <img src={Logo}  className="logo"/>
+           </Box>
+            </Box>
+          </Grid>
+
+          {/* Right Grid */}
+          <Grid item xs={12} md={6}>
+            <Box p={2} boxShadow={"rgba(0, 0, 0, 0.1) 0px 10px 30px 4px;"}>
+              <Typography variant="h3" className="ff_yatra" textAlign={"center"}>
+              तहसील कार्यालये, जालना
+              </Typography>
+              <Box component="main" sx={{ flexGrow: 1 }}>
+                <Box
+                  pt={5}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  {groupedTalukas.map((group, groupIndex) => (
+                    <Grid
+                      container
+                      spacing={2}
+                      justifyContent="center"
+                      key={groupIndex}
                       sx={{
-                        height: 60,
-                        fontSize: 20,
-                        width: buttonWidth,
-                        background:
-                          taluka.status === 2
-                            ? "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)"
-                            : "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                        transition: "background 0.3s, transform 0.3s",
-                        "&:hover": {
-                          background:
-                            taluka.status === 2
-                              ? "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)"
-                              : "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
-                          transform: "scale(1.05)",
-                        },
+                        display: "flex",
+                        justifyContent: "center",
+                        mb: 2,
                       }}
                     >
-                      {taluka.taluka_title}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            ))}
-          </Box>
-        </Box>
+                      {group.map((taluka) => (
+                        <Grid item key={taluka.id}>
+                          <Button
+                            onClick={() => handleNavigate(taluka.taluka_id)}
+                            className="ff_yatra"
+                            variant="contained"
+                            sx={{
+                              height: taluka.status == 2 ? 60 : 50,
+                              fontSize: taluka.status == 2 ? 25 : 20,
+                              width: taluka.status == 2 ? 220 : 180,
+                              background:
+                                taluka.status == 2
+                                  ? "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)"
+                                  : "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
+                              transition: "background 0.3s, transform 0.3s",
+                              "&:hover": {
+                                background:
+                                  taluka.status == 2
+                                    ? "linear-gradient(43deg, #FFCC70 0%, #C850C0 46%, #4158D0 100%)"
+                                    : "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,212,255,1) 0%, rgba(0,147,255,1) 100%)",
+                                transform: "scale(1.05)",
+                              },
+                              m: 1, // Margin for spacing between buttons
+                            }}
+                          >
+                            {taluka.taluka_title}
+                          </Button>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
-      <TopBar />
 
       {/* Custom Modal */}
       {isModalOpen && (
@@ -185,12 +196,8 @@ const Tahasil = () => {
           </div>
         </div>
       )}
-      <div className="map">
-
-      </div>
     </Box>
-    
   );
 };
- 
+
 export default Tahasil;

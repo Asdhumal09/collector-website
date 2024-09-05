@@ -156,18 +156,27 @@ const YojanaTableOne = () => {
 
   const handleSubmit = async () => {
     try {
-      // Create an object with the required data
+      // Create an array with only form_field_id and value
+      const formData = Object.values(talukas).map(taluka => ({
+        taluka_title: taluka.taluka_title,
+        form_fields: taluka.form_fields.map(field => ({
+          form_field_id: field.form_field_id,
+          value: field.value
+        }))
+      }));
+  
+      // Prepare the request payload
       const requestData = {
-        id: id,
+        taluka_id: id,
         subyojnaId: subyojnaId,
-        currentData: talukas,
+        formData: formData,
       };
   
-      // Log the entire object
+      // Log the request data to ensure it is correct
       console.log("Request Data:", requestData);
   
       // Send the data to the server
-      await apiClient.post('/updateTalukas', requestData);
+      await apiClient.post('/inputValues', requestData);
       alert('Data submitted successfully!');
     } catch (error) {
       console.error("Error submitting data:", error);
