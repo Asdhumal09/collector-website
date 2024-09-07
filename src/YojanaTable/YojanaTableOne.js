@@ -206,9 +206,10 @@ const YojanaTableOne = () => {
         if (talukaTitle) {
           const fields = headers.slice(1).map((header, index) => ({
             form_field_name: header,
-            form_field_id: index + 1,
+            form_field_id: talukas[id].form_fields[index].form_field_id,
             value: row[index + 1] || ""
           }));
+          console.log(talukas[id].form_fields, "talukas")
 
           updatedTalukas[talukaTitle] = {
             taluka_title: talukaTitle,
