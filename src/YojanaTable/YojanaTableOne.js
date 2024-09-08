@@ -256,11 +256,11 @@ const YojanaTableOne = () => {
 
         <TableContainer
           component={Paper}
-          sx={{ width: "90%", marginLeft: "6.5%" }}
+          sx={{ width: "90%", }}
         >
           <Table
             sx={{
-              minWidth: 650,
+              maxWidth: 200,
               border: 1,
               borderColor: "grey.400",
               tableLayout: "fixed",
@@ -377,7 +377,7 @@ const YojanaTableOne = () => {
   return (
     <>
     <TopBar />
-    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 3 }}>
+    <Box sx={{ mt: 10, width:"100vw", marginLeft:"6%" }}>
       {/* Table */}
       {renderCombinedTalukaTable()}
   
@@ -415,7 +415,10 @@ const YojanaTableOne = () => {
         </Box>
       )}
        {/* Drag-and-Drop Area */}
-       <Box
+     <Box sx={{display:'flex',
+     justifyContent:"center"
+     }}>
+     <Box
         {...getRootProps()}
         sx={{
           border: "2px dashed #4caf50",
@@ -440,6 +443,7 @@ const YojanaTableOne = () => {
           Drag and drop an Excel file here, or click to select a file
         </Typography>
       </Box>
+     </Box>
     </Box>
   </>
   

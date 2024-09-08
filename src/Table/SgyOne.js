@@ -1,230 +1,176 @@
-import React, { useEffect, useState } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import TopBar from '../TopBar/TopBar';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios'; // Ensure axios is imported
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import TopBar from "../TopBar/TopBar";
+import apiClient from "../apiClient/ApiClient";
+import { Chart } from "react-google-charts";
 
-// Unique data for each chart
-const dataSets = [
-  { name: 'Jan', value1: 400, value2: 240 },
-  { name: 'Feb', value1: 300, value2: 220 },
-  { name: 'Mar', value1: 300, value2: 200 },
-  { name: 'Apr', value1: 200, value2: 180 },
-  { name: 'May', value1: 278, value2: 230 },
-  { name: 'Jun', value1: 189, value2: 290 },
-  { name: 'Jul', value1: 300, value2: 250 },
-  { name: 'Aug', value1: 450, value2: 320 },
-  { name: 'Sep', value1: 500, value2: 400 },
-  { name: 'Oct', value1: 350, value2: 300 },
-];
-
-// Color schemes for each Bar chart
+// Color schemes for each pie chart
 const colorSchemes = [
-  ['#FF5733', '#C70039'],
-  ['#DAF7A6', '#FFC300'],
-  ['#581845', '#900C3F'],
-  ['#FF6F61', '#6B5B95'],
-  ['#88B04B', '#F7CAC9'],
-  ['#FFCCCB', '#D5AAFF'],
-  ['#A9DFBF', '#F5B041'],
-  ['#E67E22', '#1F618D'],
-  ['#EC7063', '#48C9B0'],
-  ['#F39C12', '#E74C3C'],
+  ["#FF5733", "#C70039", "#900C3F"],
+  ["#DAF7A6", "#FFC300", "#FF5733"],
+  ["#581845", "#900C3F", "#C70039"],
+  ["#FF6F61", "#6B5B95", "#FF5733"],
+  ["#88B04B", "#F7CAC9", "#FFC300"],
+  ["#FFCCCB", "#D5AAFF", "#C70039"],
+  ["#A9DFBF", "#F5B041", "#900C3F"],
+  ["#E67E22", "#1F618D", "#FF5733"],
+  ["#EC7063", "#48C9B0", "#900C3F"],
+  ["#F39C12", "#E74C3C", "#C70039"],
+  ["#DAF7A6", "#FFC300", "#FF5733"],
+  ["#581845", "#900C3F", "#C70039"],
 ];
 
 const Charts = () => {
-  const { id } = useParams(); // Move useParams inside the component
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [apiData, setApiData] = useState(null); // State to hold API response
+  const [chartData, setChartData] = useState([]);
 
-  // Function to fetch data from API
+  // Fetch data from the API
   const fetchData = async () => {
     try {
-      const response = await axios.get(`/getAllYojna_subyojna/${id}`);
-      console.log('API Response:', response); // Log the API response
-      setApiData(response.data); // Store data in state
+      const response = await apiClient.get(`/getChartData`);
+      setChartData(response.data.data); // Assume API returns an array of objects similar to dataSets
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
   useEffect(() => {
-    fetchData(); // Fetch data when component mounts
-  }, [id]); // Add id as a dependency to refetch if id changes
+    fetchData(); // Fetch data when component mounts or when 'id' changes
+  }, [id]);
 
   const handleAllYojna = (id) => {
     navigate(`/tahasiltwo/${id}`);
   };
 
+  // Helper function to calculate aggregated sums by form_field_name
+  const aggregateData = (data) => {
+    const aggregation = {};
+
+    const talukasArray = Array.isArray(data.talukas)
+      ? data.talukas
+      : typeof data.talukas === "object" && data.talukas !== null
+        ? Object.values(data.talukas)
+        : [];
+
+    talukasArray.forEach((taluka) => {
+      taluka.forEach((item) => {
+        const { form_field_name, value = "1" } = item; // Default value to "1" if not provided
+        const numericValue = Number(value);
+
+        if (!isNaN(numericValue)) {
+          if (aggregation[form_field_name]) {
+            aggregation[form_field_name] += numericValue;
+          } else {
+            aggregation[form_field_name] = numericValue;
+          }
+        }
+      });
+    });
+
+    return Object.keys(aggregation).map(key => ({
+      form_field_name: key,
+      totalSum: aggregation[key],
+    }));
+  };
+
+  // Function to convert aggregated data to pie chart format
+  const formatPieData = (data) => {
+    const aggregatedData = aggregateData(data);
+    const pieData = [["Form Field Name", "Total"]];
+
+    // Take only the first three items
+    aggregatedData.slice(0, 3).forEach((field) => {
+      pieData.push([field.form_field_name, field.totalSum]);
+    });
+
+    return pieData;
+  };
+
   return (
     <div className="p-6 mt-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-16 justify-center flex">
-        {/* Bar Chart 1 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 1</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(0, 3)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[0][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[0][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 justify-center flex">
+        {chartData.length > 0 ? (
+          chartData.map((data, index) => {
+            // Format pie chart data
+            const pieData = formatPieData(data);
+            const colors = colorSchemes[index % colorSchemes.length]; // Use color schemes in a cyclic manner
 
-        {/* Bar Chart 2 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 2</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(3, 6)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[1][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[1][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+            const slices = pieData.slice(1).map((_, idx) => ({
+              color: colors[idx] || "#000000", // Default color if not enough colors
+            }));
 
-        {/* Bar Chart 3 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 3</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(6, 9)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[2][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[2][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+            return (
+              <div
+                key={index}
+                className="flex flex-col items-center shadow-lg p-6 border rounded-lg bg-white w-[500px] mb-8"
+              >
+                <h3 className="text-lg font-semibold text-center mb-4">
+                  {data.subyojna_title}
+                </h3>
 
-        {/* Bar Chart 4 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 4</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(9, 12)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[3][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[3][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+                {/* Pie Chart */}
+                <Chart
+                  chartType="PieChart"
+                  data={pieData}
+                  options={{
+                    pieHole: 0.3, // Optional: Donut chart
+                    is3D: true, // Optional: 3D effect
+                    slices: slices.reduce((acc, _, idx) => {
+                      acc[idx] = { color: colors[idx] || "#000000" }; // Apply color
+                      return acc;
+                    }, {}),
+                    legend: {
+                      position: "bottom",
+                      alignment: "center",
+                      textStyle: {
+                        fontSize: 14,
+                      },
+                    },
+                    chartArea: { width: "90%", height: "80%" },
+                    pieSliceTextStyle: {
+                      color: "white",
+                      fontSize: 16,
+                    },
+                    backgroundColor: "#f4f4f4",
+                  }}
+                  width="100%"
+                  height="400px"
+                />
 
-        {/* Bar Chart 5 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 5</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(0, 3)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[4][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[4][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Bar Chart 6 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 6</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(3, 6)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[5][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[5][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Bar Chart 7 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 7</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(6, 9)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[6][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[6][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Bar Chart 8 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 8</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(9, 12)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[7][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[7][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Bar Chart 9 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 9</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(0, 3)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[8][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[8][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Bar Chart 10 */}
-        <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Bar Chart 10</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataSets.slice(3, 6)}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value1" fill={colorSchemes[9][0]} />
-              <Bar dataKey="value2" fill={colorSchemes[9][1]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+                {/* Display form field names and the total sum */}
+                {aggregateData(data).length > 0 ? (
+                  aggregateData(data).slice(0, 3).map((field, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center w-full border-b py-2"
+                    >
+                      <span className="text-sm text-gray-600">
+                        {field.form_field_name}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-800">
+                        Total: {field.totalSum}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p>No data available</p>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <p>Loading charts...</p>
+        )}
       </div>
-      
+
       {/* View All Charts Button */}
       <div className="flex justify-center mt-8">
         <button
           onClick={() => handleAllYojna(10)}
           className="bg-orange-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-orange-600 transition duration-300"
         >
-          View All Charts
+          View All Yojna
         </button>
       </div>
 

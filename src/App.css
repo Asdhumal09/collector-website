@@ -17,6 +17,9 @@
 }
 
 /* Preloader Start */
+body{
+  overflow-x: hidden;
+}
 .preloader {
   position: fixed;
   top: 0;

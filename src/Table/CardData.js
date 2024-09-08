@@ -1,89 +1,135 @@
-import React from 'react';
-import TopBar from '../TopBar/TopBar';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import TopBar from "../TopBar/TopBar";
+import apiClient from "../apiClient/ApiClient";
 
 const Cards = () => {
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [chartData, setChartData] = useState([]);
 
-    const handleAllYojna = (id) => {
-        console.log("Navigating to:", id);
-        navigate(`/tahasiltwo/${id}`);
-    };
+  // Fetch data from the API
+  const fetchData = async () => {
+    try {
+      const response = await apiClient.get(`/getChartData`);
+      setChartData(response.data.data); // Assume API returns an array of objects similar to dataSets
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
-    return (
-        <div className="p-6 mt-16">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-16 justify-center flex">
-                {/* Card 1 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 1</h3>
-                    <p className="text-center text-gray-600">Description for Card 1</p>
-                </div>
+  useEffect(() => {
+    fetchData(); // Fetch data when component mounts or when 'id' changes
+  }, [id]);
 
-                {/* Card 2 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 2</h3>
-                    <p className="text-center text-gray-600">Description for Card 2</p>
-                </div>
+  const handleAllYojna = (id) => {
+    navigate(`/tahasiltwo/${id}`);
+  };
 
-                {/* Card 3 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 3</h3>
-                    <p className="text-center text-gray-600">Description for Card 3</p>
-                </div>
+  // Helper function to calculate aggregated sums by form_field_name
+  const aggregateData = (data) => {
+    const aggregation = {};
+  
+    const talukasArray = Array.isArray(data.talukas)
+      ? data.talukas
+      : typeof data.talukas === "object" && data.talukas !== null
+        ? Object.values(data.talukas)
+        : [];
+  
+    // Log the talukasArray to verify its structure
+    console.log("Talukas Array:", talukasArray);
+  
+    talukasArray.forEach((taluka) => {
+      taluka.forEach((item) => {
+        const { form_field_name, value = "1" } = item; // Default value to "1" if not provided
+        
+        // Ensure value is a number
+        const numericValue = Number(value);
+  
+        // Log the current item and its numeric value
+        console.log(`Processing item: ${form_field_name}, Value: ${numericValue}`);
+  
+        // Check if the conversion to a number was successful
+        if (!isNaN(numericValue)) {
+          if (aggregation[form_field_name]) {
+            aggregation[form_field_name] += numericValue;
+          } else {
+            aggregation[form_field_name] = numericValue;
+          }
+        } else {
+          console.error(`Invalid value for ${form_field_name}: ${value}`);
+        }
+      });
+    });
+  
+    // Log the aggregation object before converting it
+    console.log("Aggregation:", aggregation);
+  
+    // Convert the aggregation object to an array format for display
+    return Object.keys(aggregation).map(key => ({
+      form_field_name: key,
+      totalSum: aggregation[key],
+    }));
+  };
+  
 
-                {/* Card 4 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 4</h3>
-                    <p className="text-center text-gray-600">Description for Card 4</p>
-                </div>
+  return (
+    <div className="p-6 mt-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 justify-center flex">
+        {chartData.length > 0 ? (
+          chartData.map((data, index) => {
+            // Calculate aggregated data for this yojna
+            const aggregatedData = aggregateData(data);
 
-                {/* Card 5 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 5</h3>
-                    <p className="text-center text-gray-600">Description for Card 5</p>
-                </div>
+            return (
+              <div
+                key={index}
+                className="flex flex-col items-center shadow-lg p-6 border rounded-lg bg-white w-[500px] mb-8"
+              >
+                <h3 className="text-lg font-semibold text-center mb-4">
+                  {data.subyojna_title}
+                </h3>
 
-                {/* Card 6 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 6</h3>
-                    <p className="text-center text-gray-600">Description for Card 6</p>
-                </div>
 
-                {/* Card 7 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 7</h3>
-                    <p className="text-center text-gray-600">Description for Card 7</p>
-                </div>
+                {aggregatedData.length > 0 ? (
+                  aggregatedData.slice(0, 3).map((field, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center w-full border-b py-2"
+                    >
+                      <span className="text-sm text-gray-600">
+                        {field.form_field_name}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-800">
+                        Total: {field.totalSum}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p>No data available</p>
+                )}
 
-                {/* Card 8 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 8</h3>
-                    <p className="text-center text-gray-600">Description for Card 8</p>
-                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p>Loading charts...</p>
+        )}
+      </div>
 
-                {/* Card 9 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 9</h3>
-                    <p className="text-center text-gray-600">Description for Card 9</p>
-                </div>
+      {/* View All Charts Button */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={() => handleAllYojna(10)}
+          className="bg-orange-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-orange-600 transition duration-300"
+        >
+          View All Yojna
+        </button>
+      </div>
 
-                {/* Card 10 */}
-                <div className="flex flex-col items-center shadow-lg p-4 border rounded-lg bg-white w-[440px] mb-4 transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
-                    <h3 className="text-lg font-semibold text-center mb-4">Card 10</h3>
-                    <p className="text-center text-gray-600">Description for Card 10</p>
-                </div>
-            </div>
-            <div className="flex justify-center mt-8">
-                <button
-                    onClick={() => handleAllYojna(10)} // Fixed the onClick handler
-                    className="px-6 py-2 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition-colors duration-300"
-                >
-                    View All Yojana
-                </button>
-            </div>
-            <TopBar />
-        </div>
-    );
+      <TopBar />
+    </div>
+  );
 };
 
 export default Cards;
