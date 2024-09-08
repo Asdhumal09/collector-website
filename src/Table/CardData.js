@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Box, Button, Card, CardContent, CardActions, Typography, Grid, CircularProgress } from "@mui/material";
 import TopBar from "../TopBar/TopBar";
 import apiClient from "../apiClient/ApiClient";
 
@@ -7,6 +8,7 @@ const Cards = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch data from the API
   const fetchData = async () => {
@@ -15,6 +17,8 @@ const Cards = () => {
       setChartData(response.data.data); // Assume API returns an array of objects similar to dataSets
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,27 +33,19 @@ const Cards = () => {
   // Helper function to calculate aggregated sums by form_field_name
   const aggregateData = (data) => {
     const aggregation = {};
-  
+
     const talukasArray = Array.isArray(data.talukas)
       ? data.talukas
       : typeof data.talukas === "object" && data.talukas !== null
         ? Object.values(data.talukas)
         : [];
-  
-    // Log the talukasArray to verify its structure
-    console.log("Talukas Array:", talukasArray);
-  
+
     talukasArray.forEach((taluka) => {
       taluka.forEach((item) => {
         const { form_field_name, value = "1" } = item; // Default value to "1" if not provided
-        
-        // Ensure value is a number
+
         const numericValue = Number(value);
-  
-        // Log the current item and its numeric value
-        console.log(`Processing item: ${form_field_name}, Value: ${numericValue}`);
-  
-        // Check if the conversion to a number was successful
+
         if (!isNaN(numericValue)) {
           if (aggregation[form_field_name]) {
             aggregation[form_field_name] += numericValue;
@@ -61,74 +57,128 @@ const Cards = () => {
         }
       });
     });
-  
-    // Log the aggregation object before converting it
-    console.log("Aggregation:", aggregation);
-  
-    // Convert the aggregation object to an array format for display
+
     return Object.keys(aggregation).map(key => ({
       form_field_name: key,
       totalSum: aggregation[key],
     }));
   };
-  
 
   return (
-    <div className="p-6 mt-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 justify-center flex">
-        {chartData.length > 0 ? (
-          chartData.map((data, index) => {
-            // Calculate aggregated data for this yojna
-            const aggregatedData = aggregateData(data);
+    <Box pl={10} pr={6} pt={5} mt={7}>
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={4} justifyContent="center">
+          {chartData.length > 0 ? (
+            chartData.map((data, index) => {
+              const aggregatedData = aggregateData(data);
 
-            return (
-              <div
-                key={index}
-                className="flex flex-col items-center shadow-lg p-6 border rounded-lg bg-white w-[500px] mb-8"
-              >
-                <h3 className="text-lg font-semibold text-center mb-4">
-                  {data.subyojna_title}
-                </h3>
-
-
-                {aggregatedData.length > 0 ? (
-                  aggregatedData.slice(0, 3).map((field, idx) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between items-center w-full border-b py-2"
+              return (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    mb={4}
+                    sx={{
+                      '&:not(:last-child)': {
+                        marginLeft: { xs: 0, sm: "90px" }, // Adjust left margin as needed
+                      }
+                    }}
+                  >
+                    <Card
+                      sx={{
+                        width: 450, // Set fixed width
+                        height: 270, // Set fixed height to ensure all cards have the same height
+                        transition: 'transform 0.3s',
+                        overflow: 'hidden', // Prevent content overflow
+                        display: 'flex',
+                        flexDirection: 'column',
+                        '&:hover': {
+                          transform: 'scale(1.05)',
+                          boxShadow: '0px 12px 24px rgba(0,0,0,0.2)',
+                        },
+                        borderRadius: '12px',
+                        boxShadow: '0px 4px 12px rgba(0,0,0,0.1)',
+                      }}
                     >
-                      <span className="text-sm text-gray-600">
-                        {field.form_field_name}
-                      </span>
-                      <span className="text-sm font-semibold text-gray-800">
-                        Total: {field.totalSum}
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <p>No data available</p>
-                )}
+                      <CardContent sx={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        /* Custom scrollbar styling */
+                        '&::-webkit-scrollbar': {
+                          width: '5px', // Width of the scrollbar
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          background: '#f1f1f1', // Background color of the track
+                          borderRadius: '8px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          background: '#888', // Color of the scroll thumb
+                          borderRadius: '8px',
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                          background: '#555', // Color when hovered
+                        }
+                      }}>
+                        <Typography variant="h6" component="div" gutterBottom>
+                          {data.subyojna_title}
+                        </Typography>
+                        {aggregatedData.length > 0 ? (
+                          aggregatedData.slice(0, 3).map((field, idx) => (
+                            <Box
+                              key={idx}
+                              display="flex"
+                              flexDirection={{ xs: "column", sm: "row" }} // Column on small screens, row on larger screens
+                              justifyContent="space-between"
+                              alignItems="center"
+                              py={1}
+                              borderBottom="1px solid #e0e0e0"
+                              sx={{
+                                width: '100%', // Ensure full width for responsiveness
+                                maxWidth: '100%', // Prevent overflow on smaller screens
+                              }}
+                            >
+                              <Typography variant="body2" color="text.secondary" sx={{ flex: 1 }}>
+                                {field.form_field_name}
+                              </Typography>
+                              <Typography variant="body2" fontWeight="bold" color="text.primary" sx={{ flex: 1, textAlign: { xs: "left", sm: "right" } }}>
+                                Total: {field.totalSum}
+                              </Typography>
+                            </Box>
+                          ))
+                        ) : (
+                          <Typography variant="body2" color="text.secondary">
+                            No data available
+                          </Typography>
+                        )}
+                      </CardContent>
 
-              </div>
-            );
-          })
-        ) : (
-          <p>Loading charts...</p>
-        )}
-      </div>
+                      <CardActions>
+                        <Button
+                          size="small"
+                          color="primary"
+                          onClick={() => handleAllYojna(10)}
+                          sx={{ flexGrow: 1 }}
+                        >
+                          View All Yojna
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Box>
+                </Grid>
 
-      {/* View All Charts Button */}
-      <div className="flex justify-center mt-8">
-        <button
-          onClick={() => handleAllYojna(10)}
-          className="bg-orange-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-orange-600 transition duration-300"
-        >
-          View All Yojna
-        </button>
-      </div>
-
+              );
+            })
+          ) : (
+            <Typography variant="body1" align="center">No data available</Typography>
+          )}
+        </Grid>
+      )}
       <TopBar />
-    </div>
+    </Box>
   );
 };
 

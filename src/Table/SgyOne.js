@@ -88,8 +88,8 @@ const Charts = () => {
   };
 
   return (
-    <div className="p-6 mt-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-16 justify-center flex">
+    <div className="ms-16 mt-16">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {chartData.length > 0 ? (
           chartData.map((data, index) => {
             // Format pie chart data
@@ -103,7 +103,8 @@ const Charts = () => {
             return (
               <div
                 key={index}
-                className="flex flex-col items-center shadow-lg p-6 border rounded-lg bg-white w-[500px] mb-8"
+                className="flex flex-col items-center shadow-lg p-4 md:p-6 border rounded-lg bg-white"
+                style={{width:"450px"}}
               >
                 <h3 className="text-lg font-semibold text-center mb-4">
                   {data.subyojna_title}
@@ -114,7 +115,7 @@ const Charts = () => {
                   chartType="PieChart"
                   data={pieData}
                   options={{
-                    pieHole: 0.3, // Optional: Donut chart
+                    pieHole: 1, // Optional: Donut chart
                     is3D: true, // Optional: 3D effect
                     slices: slices.reduce((acc, _, idx) => {
                       acc[idx] = { color: colors[idx] || "#000000" }; // Apply color
@@ -127,7 +128,7 @@ const Charts = () => {
                         fontSize: 14,
                       },
                     },
-                    chartArea: { width: "90%", height: "80%" },
+                    chartArea: { width: "90%", height: "70%" },
                     pieSliceTextStyle: {
                       color: "white",
                       fontSize: 16,
@@ -135,7 +136,7 @@ const Charts = () => {
                     backgroundColor: "#f4f4f4",
                   }}
                   width="100%"
-                  height="400px"
+                  height="300px"
                 />
 
                 {/* Display form field names and the total sum */}
@@ -154,13 +155,13 @@ const Charts = () => {
                     </div>
                   ))
                 ) : (
-                  <p>No data available</p>
+                  <p className="text-gray-600">No data available</p>
                 )}
               </div>
             );
           })
         ) : (
-          <p>Loading charts...</p>
+          <p className="text-gray-600 text-center">Loading charts...</p>
         )}
       </div>
 

@@ -118,7 +118,7 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 }));
 
 // Modal Component
-const RoleWarningModal = ({ open, onClose, onSubmit, yojnaId }) => {
+const RoleWarningModal = ({ open, onClose, onSubmit }) => {
   const [inputValue, setInputValue] = useState("");
 
   const handleInputChange = (event) => {
@@ -126,7 +126,7 @@ const RoleWarningModal = ({ open, onClose, onSubmit, yojnaId }) => {
   };
 
   const handleSubmit = () => {
-    onSubmit(inputValue); // Pass inputValue to the onSubmit function
+    onSubmit(inputValue);
   };
 
   return (
@@ -149,6 +149,7 @@ const RoleWarningModal = ({ open, onClose, onSubmit, yojnaId }) => {
           onChange={handleInputChange}
           sx={{ marginTop: 2 }}
         />
+        {console.log(inputValue, 'inputValue')}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="primary">
@@ -238,7 +239,7 @@ export default function CustomizedTabs() {
       // Include yojnaId in the API request
       const response = await apiClient.post("/IsValidUser", {
         userpassword: inputValue,
-        yojna_id: activeYojnaId, // Send yojnaId here
+        yojna_id: activeYojnaId || 1, 
       });
   
       // Check if the response status is 200 and success is true

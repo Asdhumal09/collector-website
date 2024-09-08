@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, CssBaseline, Typography, Button, Grid } from "@mui/material";
+import { Box, CssBaseline, Typography, Button, Grid, IconButton, Dialog, DialogContent, DialogTitle, DialogActions } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../apiClient/ApiClient";
 import TopBar from "../TopBar/TopBar";
-import MapImage from "../images/map-color-name.svg"; 
+import MapImage from "../images/map-color-name.svg";
 import Logo from "../Tahasil/logo.png"
+import { Close as CloseIcon, BarChart as BarChartIcon, ViewComfy as ViewComfyIcon, Apps as AppsIcon } from '@mui/icons-material';  // Correct MUI Icons import
+
+
 
 const Tahasil = () => {
   const [talukas, setTalukas] = useState([]);
@@ -89,11 +92,11 @@ const Tahasil = () => {
           {/* Left Grid */}
           <Grid item xs={12} md={5}>
             <Box className="map-image" p={2} boxShadow={"rgba(0, 0, 0, 0.1) 0px 10px 30px 4px;"} >
-           
+
               <img src={MapImage} alt="Map" />
               <Box>
-           <img src={Logo}  className="logo"/>
-           </Box>
+                <img src={Logo} className="logo" />
+              </Box>
             </Box>
           </Grid>
 
@@ -101,7 +104,7 @@ const Tahasil = () => {
           <Grid item xs={12} md={6}>
             <Box p={2} boxShadow={"rgba(0, 0, 0, 0.1) 0px 10px 30px 4px;"}>
               <Typography variant="h3" className="ff_yatra" textAlign={"center"}>
-              तहसील कार्यालये, जालना
+                तहसील कार्यालये, जालना
               </Typography>
               <Box component="main" sx={{ flexGrow: 1 }}>
                 <Box
@@ -164,38 +167,131 @@ const Tahasil = () => {
 
       {/* Custom Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h2 className="text-lg font-semibold mb-4">Select an Action</h2>
-            <div className="flex flex-col space-y-4">
-              <button
-                onClick={() => handleModalActionGraph(10)}
-                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-              >
-                View in Graph
-              </button>
-              <button
-                onClick={() => handleModalActionCard(10)}
-                className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
-              >
-                View in Cards
-              </button>
-              <button
-                onClick={() => handleModalAll(10)}
-                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
-              >
-                View All Yojna
-              </button>
-              <button
-                onClick={handleCloseModal}
-                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  <Dialog
+    open={isModalOpen}
+    onClose={handleCloseModal}
+    fullWidth
+    maxWidth="xs"
+    PaperProps={{
+      sx: {
+        borderRadius: "20px",
+        p: 3,
+        boxShadow: "0 12px 24px rgba(0,0,0,0.3)",
+        background: "linear-gradient(145deg, #e3f2fd, #ffffff)",
+      },
+    }}
+  >
+    <DialogTitle>
+      <Typography variant="h6" fontWeight="bold" color="primary" textAlign="center">
+        Select an Action
+      </Typography>
+      <IconButton
+        aria-label="close"
+        onClick={handleCloseModal}
+        sx={{ position: "absolute", right: 8, top: 8, color: "#ff4081" }}
+      >
+        <CloseIcon />
+      </IconButton>
+    </DialogTitle>
+
+    <DialogContent dividers>
+      <Box display="flex" justifyContent="center" mb={2}>
+      </Box>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              alignItems: "center",
+            }}
+          >
+            <Button
+              onClick={() => handleModalActionGraph(10)}
+              sx={{
+                width: "100%",
+                py: 1.5,
+                textTransform: "none",
+                background: "linear-gradient(135deg, #64b5f6, #1e88e5)",
+                borderRadius: "15px",
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #42a5f5, #2196f3)",
+                  transform: "scale(1.05)",
+                },
+              }}
+              variant="contained"
+              startIcon={<BarChartIcon />}
+            >
+              View in Graph
+            </Button>
+
+            <Button
+              onClick={() => handleModalActionCard(10)}
+              sx={{
+                width: "100%",
+                py: 1.5,
+                textTransform: "none",
+                background: "linear-gradient(135deg, #81c784, #43a047)",
+                borderRadius: "15px",
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #66bb6a, #2e7d32)",
+                  transform: "scale(1.05)",
+                },
+              }}
+              variant="contained"
+              startIcon={<ViewComfyIcon />}
+            >
+              View in Cards
+            </Button>
+
+            <Button
+              onClick={() => handleModalAll(10)}
+              sx={{
+                width: "100%",
+                py: 1.5,
+                textTransform: "none",
+                background: "linear-gradient(135deg, #ef5350, #d32f2f)",
+                borderRadius: "15px",
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  background: "linear-gradient(135deg, #e57373, #c62828)",
+                  transform: "scale(1.05)",
+                },
+              }}
+              variant="contained"
+              startIcon={<AppsIcon />}
+            >
+              View All Yojna
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
+    </DialogContent>
+
+    <DialogActions>
+      <Button
+        onClick={handleCloseModal}
+        sx={{
+          color: "#ff4081",
+          fontWeight: "bold",
+          textTransform: "none",
+          transition: "transform 0.2s ease-in-out",
+          "&:hover": {
+            transform: "scale(1.1)",
+          },
+        }}
+      >
+        Close
+      </Button>
+    </DialogActions>
+  </Dialog>
+)}
+
+
+
     </Box>
   );
 };
