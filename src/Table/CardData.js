@@ -14,6 +14,7 @@ const Cards = () => {
   const fetchData = async () => {
     try {
       const response = await apiClient.get(`/getChartData`);
+      console.log(response.data.data, "responses")
       setChartData(response.data.data); // Assume API returns an array of objects similar to dataSets
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -27,7 +28,7 @@ const Cards = () => {
   }, [id]);
 
   const handleAllYojna = (id) => {
-    navigate(`/tahasiltwo/${id}`);
+    navigate(`/tahasiltwo/${10}/tableone/${id}`);
   };
 
   // Helper function to calculate aggregated sums by form_field_name
@@ -65,7 +66,7 @@ const Cards = () => {
   };
 
   return (
-    <Box pl={10} pr={6} pt={5} mt={7}>
+    <Box pl={10} pr={6} pt={5} mt={6} bgcolor="#8080805c">
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
           <CircularProgress />
@@ -157,13 +158,20 @@ const Cards = () => {
                       </CardContent>
 
                       <CardActions>
-                        <Button
+                      <Button
                           size="small"
                           color="primary"
-                          onClick={() => handleAllYojna(10)}
-                          sx={{ flexGrow: 1 }}
+                          onClick={() => handleAllYojna(data.subyojna_id)}
+                          sx={{ 
+                            flexGrow: 1,
+                            color: '#FFFFFF', // White text
+                            backgroundColor: '#0056b3', // Professional blue
+                            '&:hover': {
+                              backgroundColor: '#004080', // Darker blue on hover
+                            }
+                          }}
                         >
-                          View All Yojna
+                          सर्व माहिती पहा
                         </Button>
                       </CardActions>
                     </Card>
