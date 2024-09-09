@@ -271,7 +271,7 @@ export default function CustomizedTabs() {
           background: "#fff",
           width: { sm: "90%", xs: "82%" },
           marginLeft: { sm: "6.5%", xs: "12%" },
-          marginTop: { sm: "6.5%", xs: "12%" },
+          marginTop: { sm: "4%", xs: "12%" },
           padding: "2rem 0rem",
         }}
       >

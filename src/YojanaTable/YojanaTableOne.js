@@ -10,7 +10,7 @@ import {
   Typography,
   Box,
   Button,
-  TextField
+  TextField,
 } from "@mui/material";
 import TopBar from "../TopBar/TopBar";
 import apiClient from "../apiClient/ApiClient";
@@ -19,6 +19,8 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import * as XLSX from "xlsx";
 import { useDropzone } from "react-dropzone";
+import { FaRegFilePdf } from "react-icons/fa6";
+import { TbFileExport } from "react-icons/tb";
 
 const YojanaTableOne = () => {
   const [showSignature, setShowSignature] = useState(true);
@@ -32,13 +34,15 @@ const YojanaTableOne = () => {
       try {
         if (id && subyojnaId) {
           let response;
-          if (id === '10') {
+          if (id === "10") {
             response = await apiClient.get(`/getAllformfields/${subyojnaId}`);
           } else {
-            response = await apiClient.get(`/getformfields_with_taluka/${id}/${subyojnaId}`);
+            response = await apiClient.get(
+              `/getformfields_with_taluka/${id}/${subyojnaId}`
+            );
           }
           const data = response.data.data;
-          console.log(data, 'data')
+          console.log(data, "data");
 
           if (data[subyojnaId]) {
             setTitle(data[subyojnaId].title || "");
@@ -74,34 +78,41 @@ const YojanaTableOne = () => {
       scrollY: -window.scrollY,
       windowWidth: document.documentElement.offsetWidth,
       windowHeight: document.documentElement.offsetHeight,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "px",
-        format: [canvas.width, canvas.height],
+    })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({
+          orientation: "landscape",
+          unit: "px",
+          format: [canvas.width, canvas.height],
+        });
+
+        const imgWidth = pdf.internal.pageSize.getWidth();
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, "PNG", 20, 40, imgWidth - 40, imgHeight - 100);
+
+        if (showSignature) {
+          const margin = 40;
+          pdf.setFontSize(12);
+          const yPosition = pdf.internal.pageSize.height - margin;
+
+          pdf.text(
+            "Signature: _____________________",
+            pdf.internal.pageSize.width - 150,
+            yPosition,
+            { align: "right" }
+          );
+        }
+
+        pdf.setFontSize(16);
+        pdf.text(title, 20, 20);
+
+        pdf.save("YojanaTable.pdf");
+      })
+      .catch((error) => {
+        console.error("Error generating PDF:", error);
       });
-
-      const imgWidth = pdf.internal.pageSize.getWidth();
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 20, 40, imgWidth - 40, imgHeight - 100);
-
-      if (showSignature) {
-        const margin = 40;
-        pdf.setFontSize(12);
-        const yPosition = pdf.internal.pageSize.height - margin;
-
-        pdf.text("Signature: _____________________", pdf.internal.pageSize.width - 150, yPosition, { align: "right" });
-      }
-
-      pdf.setFontSize(16);
-      pdf.text(title, 20, 20);
-
-      pdf.save("YojanaTable.pdf");
-    }).catch(error => {
-      console.error("Error generating PDF:", error);
-    });
   };
 
   const exportToExcel = () => {
@@ -109,9 +120,9 @@ const YojanaTableOne = () => {
     const fieldTotals = {};
     const excelData = [];
 
-    Object.values(talukas).forEach(taluka => {
-      taluka.form_fields.forEach(field => {
-        if (!allFields.find(f => f.form_field_id === field.form_field_id)) {
+    Object.values(talukas).forEach((taluka) => {
+      taluka.form_fields.forEach((field) => {
+        if (!allFields.find((f) => f.form_field_id === field.form_field_id)) {
           allFields.push(field);
           fieldTotals[field.form_field_id] = 0;
         }
@@ -123,11 +134,11 @@ const YojanaTableOne = () => {
       });
 
       const rowData = {
-        "तालुका": taluka.taluka_title,
+        तालुका: taluka.taluka_title,
         ...taluka.form_fields.reduce((acc, field) => {
           acc[field.form_field_name] = field.value || "";
           return acc;
-        }, {})
+        }, {}),
       };
 
       excelData.push(rowData);
@@ -141,11 +152,13 @@ const YojanaTableOne = () => {
 
   const handleFieldChange = (event, talukaTitle, fieldId) => {
     const newValue = event.target.value;
-    setTalukas(prevTalukas => {
+    setTalukas((prevTalukas) => {
       const updatedTalukas = { ...prevTalukas };
       const taluka = updatedTalukas[talukaTitle];
       if (taluka) {
-        const field = taluka.form_fields.find(f => f.form_field_id === fieldId);
+        const field = taluka.form_fields.find(
+          (f) => f.form_field_id === fieldId
+        );
         if (field) {
           field.value = newValue;
         }
@@ -157,33 +170,31 @@ const YojanaTableOne = () => {
   const handleSubmit = async () => {
     try {
       // Create an array with only form_field_id and value
-      const formData = Object.values(talukas).map(taluka => ({
+      const formData = Object.values(talukas).map((taluka) => ({
         taluka_title: taluka.taluka_title,
-        form_fields: taluka.form_fields.map(field => ({
+        form_fields: taluka.form_fields.map((field) => ({
           form_field_id: field.form_field_id,
-          value: field.value
-        }))
+          value: field.value,
+        })),
       }));
-  
+
       // Prepare the request payload
       const requestData = {
         taluka_id: id,
         subyojnaId: subyojnaId,
         formData: formData,
       };
-  
+
       // Log the request data to ensure it is correct
       console.log("Request Data:", requestData);
-  
+
       // Send the data to the server
-      await apiClient.post('/inputValues', requestData);
-      alert('Data submitted successfully!');
+      await apiClient.post("/inputValues", requestData);
+      alert("Data submitted successfully!");
     } catch (error) {
       console.error("Error submitting data:", error);
     }
   };
-  
-  
 
   const onDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -206,14 +217,13 @@ const YojanaTableOne = () => {
         if (talukaTitle) {
           const fields = headers.slice(1).map((header, index) => ({
             form_field_name: header,
-            form_field_id: talukas[id].form_fields[index].form_field_id,
-            value: row[index + 1] || ""
+            form_field_id: index + 1,
+            value: row[index + 1] || "",
           }));
-          console.log(talukas[id].form_fields, "talukas")
 
           updatedTalukas[talukaTitle] = {
             taluka_title: talukaTitle,
-            form_fields: fields
+            form_fields: fields,
           };
         }
       });
@@ -230,9 +240,9 @@ const YojanaTableOne = () => {
     const allFields = [];
     const fieldTotals = {};
 
-    Object.values(talukas).forEach(taluka => {
-      taluka.form_fields.forEach(field => {
-        if (!allFields.find(f => f.form_field_id === field.form_field_id)) {
+    Object.values(talukas).forEach((taluka) => {
+      taluka.form_fields.forEach((field) => {
+        if (!allFields.find((f) => f.form_field_id === field.form_field_id)) {
           allFields.push(field);
           fieldTotals[field.form_field_id] = 0;
         }
@@ -245,29 +255,49 @@ const YojanaTableOne = () => {
     });
 
     return (
-      <Box id="pdf-table" sx={{ mb: 4 }}>
+      <Box id="pdf-table" sx={{ mb: 4, mt: 10 }}>
         <Typography
           variant="h6"
-          sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
+          sx={{ mb: 2, fontSize: "30px", textAlign: "center" }}
           className="ff_yatra"
         >
           {title}
         </Typography>
-
+        <Box
+            sx={{ display: "flex", justifyContent: "end", mb:2, gap: 2 , width: "90%", marginLeft: "6.5%" }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={generatePDF}
+              sx={{ padding: "6px 14px"}}
+            >
+              Download <FaRegFilePdf className="ms-2"  fontSize={"18px"}/>
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={exportToExcel}
+              sx={{ padding: "6px 14px"}}
+            >
+              Download Excel <TbFileExport className="ms-1"  fontSize={"19px"}/>
+            </Button>
+          </Box>
         <TableContainer
           component={Paper}
-          sx={{ width: "90%", }}
+          sx={{ width: "90%", marginLeft: "6.5%" }}
         >
+         
           <Table
             sx={{
-              maxWidth: 200,
+              minWidth: 650,
               border: 1,
               borderColor: "grey.400",
               tableLayout: "fixed",
             }}
             aria-label="combined taluka table"
           >
-            <TableHead sx={{ background: "rgb(224 224 224 / 57%);" }}>
+            <TableHead sx={{ background: " rgb(0 147 255 / 7%)" }}>
               <TableRow>
                 <TableCell
                   className="ff_yatra"
@@ -277,13 +307,12 @@ const YojanaTableOne = () => {
                     borderColor: "grey.400",
                     padding: "8px",
                     fontSize: { xs: "0.875rem", sm: "0.975rem" },
-                    fontWeight: 'bold',
-                    width: "200px"
+                    width: "200px",
                   }}
                 >
                   तालुका
                 </TableCell>
-                {allFields.map(field => (
+                {allFields.map((field) => (
                   <TableCell
                     key={field.form_field_id}
                     className="ff_yatra"
@@ -310,13 +339,14 @@ const YojanaTableOne = () => {
                       border: 1,
                       borderColor: "grey.400",
                       padding: "8px",
-                      width: "200px"
+                      width: "200px",
                     }}
                   >
                     {taluka.taluka_title}
                   </TableCell>
-                  {allFields.map(field => (
+                  {allFields.map((field) => (
                     <TableCell
+                      className="ff_baloo"
                       key={field.form_field_id}
                       align="center"
                       sx={{
@@ -326,22 +356,34 @@ const YojanaTableOne = () => {
                         width: "150px",
                       }}
                     >
-                      {role !== '1' ? (
+                      {role !== "1" ? (
                         <TextField
-                          value={taluka.form_fields.find(f => f.form_field_id === field.form_field_id)?.value || ""}
-                          onChange={(e) => handleFieldChange(e, taluka.taluka_title, field.form_field_id)}
+                          value={
+                            taluka.form_fields.find(
+                              (f) => f.form_field_id === field.form_field_id
+                            )?.value || ""
+                          }
+                          onChange={(e) =>
+                            handleFieldChange(
+                              e,
+                              taluka.taluka_title,
+                              field.form_field_id
+                            )
+                          }
                           variant="outlined"
                           size="small"
-                          sx={{ width: '100%' }}
+                          sx={{ width: "100%" }}
                         />
                       ) : (
-                        taluka.form_fields.find(f => f.form_field_id === field.form_field_id)?.value || ""
+                        taluka.form_fields.find(
+                          (f) => f.form_field_id === field.form_field_id
+                        )?.value || ""
                       )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))}
-              <TableRow sx={{ background: "rgb(224 224 224 / 57%);" }}>
+              <TableRow sx={{ background: "rgb(224 224 224 / 30%);" }}>
                 <TableCell
                   align="center"
                   sx={{
@@ -353,8 +395,9 @@ const YojanaTableOne = () => {
                 >
                   एकूण
                 </TableCell>
-                {allFields.map(field => (
+                {allFields.map((field) => (
                   <TableCell
+                    className="ff_yatra"
                     key={field.form_field_id}
                     align="center"
                     sx={{
@@ -376,77 +419,56 @@ const YojanaTableOne = () => {
 
   return (
     <>
-    <TopBar />
-    <Box sx={{ mt: 10, width:"100vw", marginLeft:"6%" }}>
-      {/* Table */}
-      {renderCombinedTalukaTable()}
-  
-      {/* Action Buttons */}
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3, gap: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={generatePDF}
-          sx={{ padding: "10px 20px", fontSize: "16px" }}
-        >
-          Download PDF
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={exportToExcel}
-          sx={{ padding: "10px 20px", fontSize: "16px" }}
-        >
-          Download Excel
-        </Button>
-      </Box>
-  
-      {/* Submit Button */}
-      {role !== '1' && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleSubmit}
-            sx={{ padding: "10px 20px", fontSize: "16px" }}
+      <TopBar />
+      <Box sx={{ mt: 3 }}>
+        {/* Table */}
+        {renderCombinedTalukaTable()}
+
+        {/* Action Buttons */}
+
+        {/* Submit Button */}
+        {role !== "1" && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleSubmit}
+              sx={{ padding: "10px 20px", fontSize: "16px" }}
+            >
+              Submit
+            </Button>
+          </Box>
+        )}
+        {/* Drag-and-Drop Area */}
+        <Box display={"flex"} justifyContent={"center"}>
+          <Box
+            {...getRootProps()}
+            sx={{
+              border: "2px dashed #4caf50",
+              borderRadius: "8px",
+              backgroundColor: "#00bf0a05",
+              padding: "40px",
+              textAlign: "center",
+              width: "30%",
+              mt: 3,
+              mb: 3,
+              transition: "border 0.3s ease",
+              "&:hover": {
+                borderColor: "#388e3c",
+              },
+            }}
           >
-            Submit
-          </Button>
+            <input {...getInputProps()} />
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>
+              Upload Excel File
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#777" }}>
+              Drag and drop an Excel file here, or click to select a file
+            </Typography>
+          </Box>
         </Box>
-      )}
-       {/* Drag-and-Drop Area */}
-     <Box sx={{display:'flex',
-     justifyContent:"center"
-     }}>
-     <Box
-        {...getRootProps()}
-        sx={{
-          border: "2px dashed #4caf50",
-          borderRadius: "8px",
-          backgroundColor: "#f9f9f9",
-          padding: "40px",
-          textAlign: "center",
-          width: "30%",
-          mt: 5,
-          mb: 3,
-          transition: "border 0.3s ease",
-          '&:hover': {
-            borderColor: "#388e3c",
-          }
-        }}
-      >
-        <input {...getInputProps()} />
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>
-          Upload Excel File
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#777" }}>
-          Drag and drop an Excel file here, or click to select a file
-        </Typography>
       </Box>
-     </Box>
-    </Box>
-  </>
-  
+    </>
   );
 };
 
