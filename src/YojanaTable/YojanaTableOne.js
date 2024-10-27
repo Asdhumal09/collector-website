@@ -64,7 +64,7 @@ const YojanaTableOne = () => {
     setRole(userRole);
   }, [id, subyojnaId]);
 
-  const generatePDF = () => {
+  const printTable = () => {
     const input = document.getElementById("pdf-table");
 
     if (!input) {
@@ -72,47 +72,70 @@ const YojanaTableOne = () => {
       return;
     }
 
-    html2canvas(input, {
-      scale: 2,
-      scrollX: -window.scrollX,
-      scrollY: -window.scrollY,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight,
-    })
-      .then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({
-          orientation: "landscape",
-          unit: "px",
-          format: [canvas.width, canvas.height],
-        });
+    // Create a new print window
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Table</title>
+          <style>
+            @page {
+              size: 1010mm 1000mm; /* Custom width and height */
+            }
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0; /* Remove default margin */
+              padding: 20px; /* Padding inside the body */
+              font-size: 18px; /* Set default font size for body text */
+            }
+            .ff_yatra {
+              font-size: 24px; /* Set a larger font size for the title */
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            th, td {
+              border: 1px solid #000;
+              padding: 12px; /* Increase padding for table cells */
+              text-align: left;
+              font-size: 18px; /* Set font size for table cells */
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+            /* Hide elements you don’t want in print */
+            .no-print {
+              display: none;
+            }
+        .signature-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns content to the right */
+    margin-top: 32px; /* Adds space above */
+    font-family: Arial, sans-serif; /* Sets font family */
+    font-size: 40px; /* Set font size for signature */
+}
+    .signature{
+     border: 2px solid #000; /* Add a border with a solid black color */
+    padding: 50px 50px; /* Optional: Adds padding inside the border */
+    }
 
-        const imgWidth = pdf.internal.pageSize.getWidth();
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          </style>
+        </head>
+        <body>
+          <h1>${title}</h1>
+          <div>${input.outerHTML}</div>
+          <div class="signature-container">
+            <div class="signature">Signature: _________</div>
+          </div>
+        </body>
+      </html>
+    `);
 
-        pdf.addImage(imgData, "PNG", 20, 40, imgWidth - 40, imgHeight - 100);
-
-        if (showSignature) {
-          const margin = 40;
-          pdf.setFontSize(12);
-          const yPosition = pdf.internal.pageSize.height - margin;
-
-          pdf.text(
-            "Signature: _____________________",
-            pdf.internal.pageSize.width - 150,
-            yPosition,
-            { align: "right" }
-          );
-        }
-
-        pdf.setFontSize(16);
-        pdf.text(title, 20, 20);
-
-        pdf.save("YojanaTable.pdf");
-      })
-      .catch((error) => {
-        console.error("Error generating PDF:", error);
-      });
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
   const exportToExcel = () => {
@@ -269,7 +292,7 @@ const YojanaTableOne = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={generatePDF}
+              onClick={printTable}
               sx={{ padding: "6px 14px"}}
             >
               Download <FaRegFilePdf className="ms-2"  fontSize={"18px"}/>
