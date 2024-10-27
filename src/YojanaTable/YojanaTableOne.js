@@ -294,6 +294,7 @@ const YojanaTableOne = () => {
               color="primary"
               onClick={printTable}
               sx={{ padding: "6px 14px"}}
+              className="no-print"
             >
               Download <FaRegFilePdf className="ms-2"  fontSize={"18px"}/>
             </Button>
@@ -302,6 +303,7 @@ const YojanaTableOne = () => {
               color="success"
               onClick={exportToExcel}
               sx={{ padding: "6px 14px"}}
+               className="no-print"
             >
               Download Excel <TbFileExport className="ms-1"  fontSize={"19px"}/>
             </Button>
