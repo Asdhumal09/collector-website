@@ -177,7 +177,7 @@ const Home = () => {
             </Typography>
             {/* <PieChart/>   */}
             <XDChart/>
-          </Box>
+          </Box>  
         </Grid>
       </Grid>
 

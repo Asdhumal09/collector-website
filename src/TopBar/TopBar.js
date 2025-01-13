@@ -22,7 +22,7 @@ import User from "../Login/user.jpg";
 // import User from "../TopBar/user.jpg";
 import { useNavigate } from "react-router-dom";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 const TopBar = () => {
   const drawerWidth = { xs: 30, sm: 50 };
   const navigate = useNavigate();
@@ -95,8 +95,11 @@ const TopBar = () => {
       navigate("/");
     }
     setOpen(false);
-  };
+  }; 
 
+  const handleClick = () => {
+    navigate("/visit");  // Navigate to the home page
+  };
   return (
     <Box>
       <CssBaseline />
@@ -131,6 +134,20 @@ const TopBar = () => {
               }}
             >  <ChevronLeftIcon/>
               Back
+            </Button>
+
+            <Button   
+              onClick={handleClick}
+              variant="contained"
+              sx={{
+                marginLeft:"10px",
+                background: "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
+                color: "#fff",  
+                textTransform: "none", 
+                padding: "8px 16px", // Adjust padding as needed
+              }}
+              >   
+              Visit <ChevronRightIcon/>
             </Button>
           </Box>
           <Box
