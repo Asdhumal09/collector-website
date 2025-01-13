@@ -20,6 +20,7 @@ import SgyOne from './Table/SgyOne';
 import PrivateRoute from './components/PrivateRoute';
 import TahsilTable from './YojanaTable/TahsilTable';
 import { XDChart } from './Charts/3DChart';
+import VisitPage from './visit/visitPage';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -56,6 +57,7 @@ function App() {
           <Route path="/datatable" element={<PrivateRoute element={DataTable} />} />
           <Route path="/chart" element={<PrivateRoute element={PieChartComponent} />} />
           <Route path="/3dchart" element={<PrivateRoute element={XDChart} />}/>
+          <Route path="/visit" element={<PrivateRoute element={VisitPage} />}/>
         </Routes>
       )}
     </>
