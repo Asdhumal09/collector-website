@@ -53,6 +53,7 @@ const VisitPage = () => {
     openModal,
   } = state;
   const [yojanas, setYojanas] = useState([]);
+  const [talukaName, setTalukaName] = useState("");
 
   const getAllYojna = async () => {
     try {
@@ -104,7 +105,17 @@ const VisitPage = () => {
     if (!taluka_id) return;
 
     try {
-      const response = await apiClient.get(`/all-records/${taluka_id}`);
+      console.log(taluka_id, "taluka_id");
+
+      // Use if-else statement to fetch the data conditionally
+      let response;
+      if (taluka_id === 10) {
+        response = await apiClient.get(`/all-records/0`);
+      } else {
+        response = await apiClient.get(`/all-records/${taluka_id}`);
+      }
+
+      console.log(response, "dsdsdsddsdds");
       setState((prev) => ({ ...prev, userData: response.data.data }));
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -114,6 +125,30 @@ const VisitPage = () => {
   useEffect(() => {
     fetchData();
   }, [taluka_id]);
+
+  const changeDate = async () => {
+    if (!fromDate) return;
+
+    try {
+      const response = await apiClient.post(`/filter-date-between`, {
+        taluka_id,
+        fromDate,
+        toDate,
+      });
+      console.log(response.data.data, "date respomse");
+      setState((prev) => ({ ...prev, userData: response.data.data }));
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    changeDate();
+  }, []);
+
+  useEffect(() => {
+    changeDate();
+  }, [fromDate, toDate]);
 
   const handleChange = (key) => (e) => {
     setState((prev) => ({ ...prev, [key]: e.target.value }));
@@ -203,19 +238,21 @@ const VisitPage = () => {
                   renderValue={(selected) => {
                     if (!selected) return "Select Taluka";
 
-                    // Find the selected taluka, excluding taluka_id === 10
+                    // Find the selected taluka, excluding taluka_id === 10 and with status !== 2
                     const selectedTaluka = yojanas.find(
-                      (yojna) =>
-                        yojna.taluka_id === selected && yojna.status !== 2
+                      (yojna) => yojna.taluka_id === selected
                     );
 
-                    return selectedTaluka
-                      ? selectedTaluka.taluka_title
-                      : "Select Taluka";
+                    // Safely access the taluka_title if selectedTaluka exists
+                    if (!selectedTaluka) return "Select Taluka"; // Return default value if not found
+
+                    setTalukaName(selectedTaluka.taluka_title);
+
+                    return selectedTaluka.taluka_title;
                   }}
                 >
                   {yojanas
-                    .filter((yojna) => yojna.taluka_id !== 10) // Exclude taluka_id === 10
+                    // .filter((yojna) => yojna.taluka_id !== 10) // Exclude taluka_id === 10
                     .map((yojna) => (
                       <MenuItem key={yojna.taluka_id} value={yojna.taluka_id}>
                         {yojna.taluka_title}
@@ -248,6 +285,9 @@ const VisitPage = () => {
         </Grid>
 
         <Box mt={4}>
+        <Typography variant="h6" mb={2}>
+              {talukaName || "जिल्हा अहवाल"}
+            </Typography>
           <TableContainer component={Paper}>
             <Table
               aria-label="Visit Details Table"
