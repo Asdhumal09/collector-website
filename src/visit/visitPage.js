@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import TopBar from "../TopBar/TopBar";
 import apiClient from "../apiClient/ApiClient";
+import axios from "axios";
 
 const VisitPage = () => {
   const [state, setState] = useState({
@@ -51,6 +52,47 @@ const VisitPage = () => {
     userData,
     openModal,
   } = state;
+  const [yojanas, setYojanas] = useState([]);
+
+  const getAllYojna = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("Token not found");
+      }
+      const res = await axios.get(
+        `https://telelawmh.in/laravel/api/getAllTaluka`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return res.data;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        console.error("Unauthenticated: Please check your API credentials");
+      } else {
+        console.error("Error fetching data:", error);
+      }
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAllYojna();
+        const data = response.data; // Assuming `data` contains the correct data structure
+        setYojanas(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const tId = localStorage.getItem("t_id");
@@ -60,7 +102,7 @@ const VisitPage = () => {
 
   const fetchData = async () => {
     if (!taluka_id) return;
-  
+
     try {
       const response = await apiClient.get(`/all-records/${taluka_id}`);
       setState((prev) => ({ ...prev, userData: response.data.data }));
@@ -68,11 +110,10 @@ const VisitPage = () => {
       console.error("Error fetching data:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, [taluka_id]);
-  
 
   const handleChange = (key) => (e) => {
     setState((prev) => ({ ...prev, [key]: e.target.value }));
@@ -103,7 +144,7 @@ const VisitPage = () => {
         mobile_no,
         subject,
       });
-       fetchData();
+      fetchData();
 
       alert("Visitor added successfully!");
       handleModalClose();
@@ -118,12 +159,16 @@ const VisitPage = () => {
     padding: 8,
   };
 
+  const handleTalukaChange = (event) => {
+    setState((prev) => ({ ...prev, taluka_id: event.target.value }));
+  };
+
   return (
     <>
       <TopBar />
       <Container style={{ marginTop: 100 }}>
         <Grid container spacing={3} justifyContent="flex-end" marginBottom={5}>
-          <Grid item xs={12} md={3}>
+          <Grid item xs={3} md={3}>
             <Button
               variant="contained"
               color="success"
@@ -151,15 +196,31 @@ const VisitPage = () => {
               </Grid>
               <Grid item xs={12} md={3}>
                 <Select
-                  value={taluka}
-                  onChange={handleChange("taluka")}
+                  value={taluka_id || ""}
+                  onChange={handleTalukaChange}
                   displayEmpty
                   fullWidth
-                  renderValue={(value) => value || "Select Taluka"}
+                  renderValue={(selected) => {
+                    if (!selected) return "Select Taluka";
+
+                    // Find the selected taluka, excluding taluka_id === 10
+                    const selectedTaluka = yojanas.find(
+                      (yojna) =>
+                        yojna.taluka_id === selected && yojna.status !== 2
+                    );
+
+                    return selectedTaluka
+                      ? selectedTaluka.taluka_title
+                      : "Select Taluka";
+                  }}
                 >
-                  <MenuItem value="taluka1">Taluka1</MenuItem>
-                  <MenuItem value="taluka2">Taluka2</MenuItem>
-                  <MenuItem value="taluka3">Taluka3</MenuItem>
+                  {yojanas
+                    .filter((yojna) => yojna.taluka_id !== 10) // Exclude taluka_id === 10
+                    .map((yojna) => (
+                      <MenuItem key={yojna.taluka_id} value={yojna.taluka_id}>
+                        {yojna.taluka_title}
+                      </MenuItem>
+                    ))}
                 </Select>
               </Grid>
             </>
@@ -206,8 +267,12 @@ const VisitPage = () => {
               <TableBody>
                 {userData.map((row, index) => (
                   <TableRow key={index}>
-                    <TableCell style={tableCellStyle}>{row.visiter_name}</TableCell>
-                    <TableCell style={tableCellStyle}>{row.mobile_no}</TableCell>
+                    <TableCell style={tableCellStyle}>
+                      {row.visiter_name}
+                    </TableCell>
+                    <TableCell style={tableCellStyle}>
+                      {row.mobile_no}
+                    </TableCell>
                     <TableCell style={tableCellStyle}>{row.address}</TableCell>
                     <TableCell style={tableCellStyle}>{row.subject}</TableCell>
                   </TableRow>
@@ -242,7 +307,11 @@ const VisitPage = () => {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               {[
-                { label: "Visitor Name", value: visiter_name, key: "visiter_name" },
+                {
+                  label: "Visitor Name",
+                  value: visiter_name,
+                  key: "visiter_name",
+                },
                 { label: "Mobile", value: mobile_no, key: "mobile_no" },
               ].map((field) => (
                 <Grid item xs={12} md={6} key={field.key}>
@@ -279,7 +348,12 @@ const VisitPage = () => {
                 />
               </Grid>
               <Grid item xs={12} display="flex" justifyContent="flex-end">
-                <Button type="submit" variant="contained" color="primary" sx={{ mt: 3 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{ mt: 3 }}
+                >
                   Submit
                 </Button>
               </Grid>
