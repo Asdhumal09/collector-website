@@ -1,0 +1,13 @@
+export const DOMAIN = "https://telelawmh.in/laravel/api";
+export const BASEURL = DOMAIN;
+export const LOGIN = '/login';
+export const ISVALIDUSER = '/IsValidUser'
+export const GETALLTALUKA = '/getAllTaluka';
+export const GETALLSUBYOJNA = '/getAllYojna_subyojna';
+export const GETFORMFIELDSWITHTALUKA = '/getformfields_with_taluka';
+export const GETFORMFIELDS = '/getAllformfields';
+export const GETVISITRECORDS = '/all-records';
+export const GETCHARTDATA = '/getChartData';
+export const DATEFILTER = '/filter-date-between';
+export const VISITRECORD = '/add-visit-record';
+export const TABLEINPUTVALUES = '/inputValues';
