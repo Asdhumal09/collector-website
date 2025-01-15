@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
-import LoginForm from '../src/Login/LoginForm';
+import LoginForm from '../src/pages/LoginForm';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
