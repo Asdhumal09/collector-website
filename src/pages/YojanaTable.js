@@ -29,7 +29,7 @@ const YojanaTable = () => {
   const [talukas, setTalukas] = useState({});
   const [role, setRole] = useState(null);
   // const { id, subyojnaId } = useParams();
-  const talukaId = useSelector((state) => state.yojna.talukaId); 
+  const talukaId = useSelector((state) => state.yojna.tId); 
   console.log(talukaId, "talukaId");
   const subyojnaId = useSelector((state) => state.yojna.subyojnaId); 
 

@@ -91,11 +91,21 @@ const TopBar = () => {
   // Function to handle dialog close
   const handleClose = (confirm) => {
     if (confirm) {
-      localStorage.removeItem("accessToken"); // Remove user from local storage
+      // Clear local storage
+      localStorage.clear();
+  
+      // Redirect to /home
       navigate("/");
+  
+      // Disable back button navigation after redirecting
+      window.history.pushState(null, "", window.location.href);
+      window.addEventListener("popstate", () => {
+        window.history.pushState(null, "", window.location.href);
+      });
     }
     setOpen(false);
-  }; 
+  };
+  
 
   const handleClick = () => {
     navigate("/visit");  // Navigate to the home page
