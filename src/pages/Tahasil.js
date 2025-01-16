@@ -23,13 +23,17 @@ import {
 } from "@mui/icons-material"; // Correct MUI Icons import
 import { VscGraph } from "react-icons/vsc";
 import { getAllTaluka } from "../utils/axios";
+import { useDispatch } from 'react-redux';
+import { setTalukaId } from './../redux/slice';
 
 const Tahasil = () => {
   const [talukas, setTalukas] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTalukaId, setModalTalukaId] = useState(null);
-  const navigate = useNavigate();
   const buttonWidth = 180;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,26 +57,31 @@ const Tahasil = () => {
     fetchData();
   }, []);
 
+
   const handleNavigate = (talukaId) => {
     if (talukaId == "10") {
+      dispatch(setTalukaId(talukaId));
       setModalTalukaId(talukaId);
       setIsModalOpen(true);
     } else {
-      navigate(`/yojnaPage/${talukaId}`);
+      // Store talukaId in Redux
+      dispatch(setTalukaId(talukaId));
+      navigate('/yojnaPage');
     }
   };
 
   const handleModalActionGraph = (action) => {
+    
     setIsModalOpen(false);
-    navigate(`/chart/${action}`);
+    navigate(`/chart`);
   };
   const handleModalActionCard = (action) => {
     setIsModalOpen(false);
-    navigate(`/cards/${action}`);
+    navigate(`/cards`);
   };
   const handleModalAll = (action) => {
     setIsModalOpen(false);
-    navigate(`/yojnaPage/${action}`);
+    navigate(`/yojnaPage`);
   };
 
   const handleCloseModal = () => {

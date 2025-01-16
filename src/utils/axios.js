@@ -16,6 +16,11 @@ import {
 // Create a base axios instance
 export const axios = origin.create({
   baseURL: BASEURL,
+  headers: {
+    "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+  },
 });
 
 // Add a request interceptor to attach the token
