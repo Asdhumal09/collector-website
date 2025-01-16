@@ -91,7 +91,7 @@ const TopBar = () => {
   // Function to handle dialog close
   const handleClose = (confirm) => {
     if (confirm) {
-      // Redirect to /home
+      localStorage.removeItem("accessToken"); // Remove user from local storage
       navigate("/");
     }
     setOpen(false);

@@ -21,6 +21,7 @@ import {
 import TopBar from "./TopBar";
 import axios from "axios";
 import { dateFilter, getVisitRecord, visitRecord } from "../utils/axios";
+import { useSelector } from "react-redux";
 
 const VisitPage = () => {
   const [state, setState] = useState({
@@ -53,7 +54,8 @@ const VisitPage = () => {
     openModal,
   } = state;
   const [yojanas, setYojanas] = useState([]);
-  const [talukaName, setTalukaName] = useState("");
+  const role = useSelector((state) => state.yojna.role); 
+  console.log(role, "trolessdsd")
 
   const getAllYojna = async () => {
     try {
@@ -249,9 +251,6 @@ const VisitPage = () => {
 
                     // Safely access the taluka_title if selectedTaluka exists
                     if (!selectedTaluka) return "Select Taluka"; // Return default value if not found
-
-                    setTalukaName(selectedTaluka.taluka_title);
-
                     return selectedTaluka.taluka_title;
                   }}
                 >
@@ -290,7 +289,8 @@ const VisitPage = () => {
 
         <Box mt={4}>
         <Typography variant="h6" mb={2}>
-              {talukaName || "जिल्हा अहवाल"}
+          {}
+              {taluka || "जिल्हा अहवाल"}
             </Typography>
           <TableContainer component={Paper}>
             <Table

@@ -29,10 +29,10 @@ function App() {
           <Route path="/" element={<LoginForm />} />
           <Route path="/home" element={<Home/>} />
           <Route path="/tahasil" element={<Tahasil/>} />
-          <Route path="/yojnaPage/:id" element={<YojnaPage/>} />
-          <Route path="chart/:id" element={<Chart/>}/>
-          <Route path="cards/:id" element={<Cards/>} />
-          <Route path="/yojnaPage/:id/yojnaTable/:subyojnaId" element={<YojanaTable/>} />
+          <Route path="/yojnaPage" element={<YojnaPage/>} />
+          <Route path="/chart" element={<Chart/>}/>
+          <Route path="/cards" element={<Cards/>} />
+          <Route path="/yojnaPage/yojnaTable" element={<YojanaTable/>} />
           <Route path="/XDchart" element={<XDChart/>}/>
           <Route path="/visit" element={<VisitPage/>}/>
         </Routes>

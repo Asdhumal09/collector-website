@@ -21,23 +21,29 @@ import { useDropzone } from "react-dropzone";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { TbFileExport } from "react-icons/tb";
 import { getFormFields, getFormFieldsWithTaluka, tableInputValues } from "../utils/axios";
+import { useSelector } from "react-redux";
 
 const YojanaTable = () => {
   const [showSignature, setShowSignature] = useState(true);
   const [title, setTitle] = useState("");
   const [talukas, setTalukas] = useState({});
   const [role, setRole] = useState(null);
-  const { id, subyojnaId } = useParams();
+  // const { id, subyojnaId } = useParams();
+  const talukaId = useSelector((state) => state.yojna.talukaId); 
+  console.log(talukaId, "talukaId");
+  const subyojnaId = useSelector((state) => state.yojna.subyojnaId); 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (id && subyojnaId) {
+        if (talukaId && subyojnaId) {
           let response;
-          if (id === "10") {
+          if (talukaId === "10") {
              response = await getFormFields(subyojnaId);
+             console.log(response, "responseone");
           } else {
-              response = await getFormFieldsWithTaluka(id, subyojnaId);
+              response = await getFormFieldsWithTaluka(talukaId, subyojnaId);
+              console.log(response, "responsetwo");
           }
           const data = response.data.data;
           console.log(data, "data");
@@ -60,7 +66,7 @@ const YojanaTable = () => {
 
     const userRole = localStorage.getItem("role");
     setRole(userRole);
-  }, [id, subyojnaId]);
+  }, [talukaId, subyojnaId]);
 
   const printTable = () => {
     const input = document.getElementById("pdf-table");
@@ -201,7 +207,7 @@ const YojanaTable = () => {
 
       // Prepare the request payload
       const requestData = {
-        taluka_id: id,
+        taluka_id: talukaId,
         subyojnaId: subyojnaId,
         formData: formData,
       };

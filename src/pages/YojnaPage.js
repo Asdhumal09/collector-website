@@ -9,6 +9,8 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import ArrowRightAlt from "@mui/icons-material/ArrowRightAlt";
 import { Star } from "@mui/icons-material";
 import { getAllSubyojna, getFormFieldsWithTaluka, validUser } from "../utils/axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setSubyojnaId } from "../redux/slice";
 
 // Styled components
 
@@ -165,7 +167,6 @@ const RoleWarningModal = ({ open, onClose, onSubmit }) => {
 
 
 export default function CustomizedTabs() {
-  const { id } = useParams();
   const navigate = useNavigate(); // Hook to programmatically navigate
   const [value, setValue] = useState(0);
   const [yojanas, setYojanas] = useState([]);
@@ -176,12 +177,17 @@ export default function CustomizedTabs() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [activeYojnaId, setActiveYojnaId] = useState(null); // Add this line
+  // const id = useSelector((state) => state.taluka.yojna);
+  const talukaId = useSelector((state) => state.yojna.talukaId); 
+  console.log(talukaId, 'talukaId')
 
+  const dispatch = useDispatch();
+  const storedTaluka = useSelector((state) => state.yojna.taluka);
 
   useEffect(() => {
-    const storedTaluka = localStorage.getItem("taluka");
-    setTaluka(storedTaluka || null);
-  }, []);
+    // Update state when storedTaluka changes
+    setTaluka(storedTaluka);
+  }, [storedTaluka]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -197,15 +203,14 @@ export default function CustomizedTabs() {
 
     fetchData();
   }, []);
-
   useEffect(() => {
-    if (hoveredItem && id !== '10') {
+    if (hoveredItem && talukaId && talukaId !== "10") {
       const fetchHoverCardData = async () => {
         setLoading(true);
         try {
           const subyojnaId = hoveredItem.subyojna_id;
-          const response = await getFormFieldsWithTaluka(id, subyojnaId);
-          setHoveredData(response.data.data[subyojnaId]?.talukas[id]?.form_fields || []);
+          const response = await getFormFieldsWithTaluka(talukaId, subyojnaId);
+          setHoveredData(response.data.data[subyojnaId]?.talukas[talukaId]?.form_fields || []);
         } catch (error) {
           console.error("Error fetching hover card data:", error);
         } finally {
@@ -217,16 +222,19 @@ export default function CustomizedTabs() {
     } else {
       setHoveredData([]);
     }
-  }, [hoveredItem, id]);
+  }, [hoveredItem, talukaId]);
 
   const handleItemClick = (event, item) => {
     event.preventDefault(); // Prevent default link behavior
-    setSelectedItem(item); // Store the clicked item
+    // setSelectedItem(item);
+    dispatch(setSubyojnaId(item.subyojna_id));
     const userRole = localStorage.getItem("role");
     if (userRole !== '1') {
       setIsModalOpen(true); // Open the modal
     } else {
-      navigate(`/yojnaPage/${id}/yojnaTable/${item.subyojna_id}`); // Navigate for role 1
+      dispatch(setSubyojnaId(item.subyojna_id));
+      // navigate(`/yojnaPage/${talukaId}/yojnaTable/${item.subyojna_id}`); 
+      navigate(`/yojnaPage/yojnaTable`); 
     }
   };
 
@@ -246,9 +254,7 @@ export default function CustomizedTabs() {
       // Check if the response status is 200 and success is true
       if (response.status) {
         setIsModalOpen(false);
-        if (selectedItem) {
-          navigate(`/yojnaPage/${id}/yojnaTable/${selectedItem.subyojna_id}`);
-        }
+          navigate(`/yojnaPage/yojnaTable`);
       } else {
    
         console.error("Request failed:", response.data.message || "Unknown error");
@@ -372,7 +378,7 @@ export default function CustomizedTabs() {
                       }}
                       
                       onMouseLeave={() => setHoveredItem(null)}
-                      disableHover={id === '10'}
+                      disableHover={talukaId === '10'}
                     >
                       <SubyojnaIcon />
                       <Typography
@@ -381,7 +387,7 @@ export default function CustomizedTabs() {
                       >
                         {subyojana.sub_yojna_title}
                       </Typography>
-                      <HoverCardVisible visible={id !== '10' && hoveredItem === subyojana}>
+                      <HoverCardVisible visible={talukaId !== '10' && hoveredItem === subyojana}>
                         {loading ? (
                           <LoaderContainer>
                             <CircularProgress />

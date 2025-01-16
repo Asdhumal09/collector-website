@@ -10,11 +10,15 @@
   import Visibility from '@mui/icons-material/Visibility';
   import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { userLogin } from '../utils/axios';
+import { useDispatch } from 'react-redux';
+import { setRole, setTaluka, setTId } from '../redux/slice';
 
   const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
     const handleSubmit = async () => { 
@@ -26,15 +30,19 @@ import { userLogin } from '../utils/axios';
         if (response.data && response.access_token) {
           localStorage.setItem('accessToken', response.access_token);
           localStorage.setItem('role', response.data.role);
+          dispatch(setRole(response.data.role));
           localStorage.setItem('t_id', response.data.t_id);
+          dispatch(setTId(response.data.t_id));
 
           if (response.data.role == "1") {
-            localStorage.setItem('taluka', response.data.taluka);
+            // localStorage.setItem('taluka', response.data.taluka);
+            dispatch(setTaluka(response.data.taluka));
         
             navigate('/home');
           } else if (response.data.role == "2") {
-            localStorage.setItem('taluka', response.data.taluka.taluka_title);
-            navigate('/tahasiltwo/2');
+            // localStorage.setItem('taluka', response.data.taluka.taluka_title);
+            dispatch(setTaluka(response.data.taluka.taluka_title));
+            navigate('/yojnaPage');
           } else {
             console.error('Unknown role:', response.data.role);
             toast.error('Login successful, but role is unknown.', {
