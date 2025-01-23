@@ -13,105 +13,105 @@ import {
 import TopBar from "./TopBar";
 
 const data = [
-  {
-    office: "Collector office (Revenue), Jalna",
-    totalComplaints: 22,
-    resolved: 22,
-    pending: 0,
-    pendingPercent: "0%",
-  },
-  {
-    office: "Sub-Divisional Office (Revenue), Ambad",
-    totalComplaints: 65,
-    resolved: 11,
-    pending: 7,
-    pendingPercent: "17%",
-  },
-  {
-    office: "Sub-Divisional Office (Revenue), Jalna",
-    totalComplaints: 133,
-    resolved: 107,
-    pending: 7,
-    pendingPercent: "7%",
-  },
-  {
-    office: "Sub-Divisional Office (Revenue), Bhokardan",
-    totalComplaints: 87,
-    resolved: 11,
-    pending: 3,
-    pendingPercent: "13%",
-  },
-  {
-    office: "Sub-Divisional Office (Revenue), Partur",
-    totalComplaints: 72,
-    resolved: 57,
-    pending: 1,
-    pendingPercent: "1%",
-  },
-  {
-    office: "Taluka Office (Revenue), Ambad",
-    totalComplaints: 15,
-    resolved: 14,
-    pending: 1,
-    pendingPercent: "7%",
-  },
-  {
-    office: "Taluka Office (Revenue), Badnapur",
-    totalComplaints: 10,
-    resolved: 7,
-    pending: 3,
-    pendingPercent: "30%",
-  },
-  {
-    office: "Taluka Office (Revenue), Bhokardan",
-    totalComplaints: 29,
-    resolved: 29,
-    pending: 0,
-    pendingPercent: "0%",
-  },
-  {
-    office: "Taluka Office (Revenue), Ghansawangi",
-    totalComplaints: 12,
-    resolved: 12,
-    pending: 0,
-    pendingPercent: "0%",
-  },
-  {
-    office: "Taluka Office (Revenue), Jafrabad",
-    totalComplaints: 23,
-    resolved: 22,
-    pending: 1,
-    pendingPercent: "4%",
-  },
-  {
-    office: "Taluka Office (Revenue), Jalna",
-    totalComplaints: 11,
-    resolved: 11,
-    pending: 0,
-    pendingPercent: "0%",
-  },
-  {
-    office: "Taluka Office (Revenue), Mantha",
-    totalComplaints: 65,
-    resolved: 11,
-    pending: 7,
-    pendingPercent: "17%",
-  },
-  {
-    office: "Taluka Office (Revenue), Partur",
-    totalComplaints: 3,
-    resolved: 3,
-    pending: 0,
-    pendingPercent: "0%",
-  },
-  {
-    office: "Total",
-    totalComplaints: 365,
-    resolved: 339,
-    pending: 26,
-    pendingPercent: "7%",
-  },
-];
+    {
+      office: "Collector office (Revenue), Jalna",
+      totalComplaints: 222,
+      resolved: 219,
+      pending: 3,
+      pendingPercent: "1%",
+    },
+    {
+      office: "Sub-Divisional Office (Revenue), Ambad",
+      totalComplaints: 6,
+      resolved: 5,
+      pending: 1,
+      pendingPercent: "17%",
+    },
+    {
+      office: "Sub-Divisional Office (Revenue), Jalna",
+      totalComplaints: 13,
+      resolved: 3,
+      pending: 10,
+      pendingPercent: "77%",
+    },
+    {
+      office: "Sub-Divisional Office (Revenue), Bhokardan",
+      totalComplaints: 8,
+      resolved: 7,
+      pending: 1,
+      pendingPercent: "13%",
+    },
+    {
+      office: "Sub-Divisional Office (Revenue), Partur",
+      totalComplaints: 7,
+      resolved: 2,
+      pending: 5,
+      pendingPercent: "71%",
+    },
+    {
+      office: "Taluka Office (Revenue), Ambad",
+      totalComplaints: 15,
+      resolved: 14,
+      pending: 1,
+      pendingPercent: "7%",
+    },
+    {
+      office: "Taluka Office (Revenue), Badnapur",
+      totalComplaints: 10,
+      resolved: 7,
+      pending: 3,
+      pendingPercent: "30%",
+    },
+    {
+      office: "Taluka Office (Revenue), Bhokardan",
+      totalComplaints: 29,
+      resolved: 29,
+      pending: 0,
+      pendingPercent: "0%",
+    },
+    {
+      office: "Taluka Office (Revenue), Ghansawangi",
+      totalComplaints: 12,
+      resolved: 12,
+      pending: 0,
+      pendingPercent: "0%",
+    },
+    {
+      office: "Taluka Office (Revenue), Jafrabad",
+      totalComplaints: 23,
+      resolved: 22,
+      pending: 1,
+      pendingPercent: "4%",
+    },
+    {
+      office: "Taluka Office (Revenue), Jalna",
+      totalComplaints: 11,
+      resolved: 11,
+      pending: 0,
+      pendingPercent: "0%",
+    },
+    {
+      office: "Taluka Office (Revenue), Mantha",
+      totalComplaints: 6,
+      resolved: 5,
+      pending:1,
+      pendingPercent: "17%",
+    },
+    {
+      office: "Taluka Office (Revenue), Partur",
+      totalComplaints: 3,
+      resolved: 3,
+      pending: 0,
+      pendingPercent: "0%",
+    },
+    {
+      office: "Total",
+      totalComplaints: 365,
+      resolved: 339,
+      pending: 26,
+      pendingPercent: "6%",
+    },
+  ];
 
 const tableStyles = {
   container: { maxWidth: "1000px", margin: "20px auto" },
@@ -136,7 +136,7 @@ const ApaleSarkarTable = () => {
           className="ff_yatra"
           sx={{ fontSize: "35px", backgroundColor: "#f5f5f5", padding: "10px" }}
         >
-         Aaple Sarkar
+         आपल सरकार
         </Typography>
 
         <Table>
@@ -144,7 +144,7 @@ const ApaleSarkarTable = () => {
             <TableRow>
               {[
                 "Sr No",
-                "काययालय",
+                "कार्यालय",
                 "एकूण तक्रारी",
                 "निस्कारीत केले",
                 "प्रलंबित",

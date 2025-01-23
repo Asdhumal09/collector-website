@@ -47,7 +47,7 @@ const SimpleTable = () => {
             variant="h6"
             align="center"
             sx={{
-              padding: "10px", 
+              padding: "10px",  
               backgroundColor: "#f5f5f5",
               fontSize: "35px",
             }}
