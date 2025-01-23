@@ -38,7 +38,8 @@ const YojanaTable = () => {
       try {
         if (talukaId && subyojnaId) {
           let response;
-          if (talukaId === "10") {
+          console.log(talukaId, "talukaIdssssdsds");
+          if (talukaId == "10") {
              response = await getFormFields(subyojnaId);
              console.log(response, "responseone");
           } else {
@@ -195,6 +196,7 @@ const YojanaTable = () => {
   };
 
   const handleSubmit = async () => {
+    alert("Submitting data...");
     try {
       // Create an array with only form_field_id and value
       const formData = Object.values(talukas).map((taluka) => ({
