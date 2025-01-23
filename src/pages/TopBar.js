@@ -22,7 +22,8 @@ import User from "../assets/user.jpg";
 // import User from "../TopBar/user.jpg";
 import { useNavigate } from "react-router-dom";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import PersonIcon from "@mui/icons-material/Person";
 const TopBar = () => {
   const drawerWidth = { xs: 30, sm: 50 };
   const navigate = useNavigate();
@@ -93,10 +94,10 @@ const TopBar = () => {
     if (confirm) {
       // Clear local storage
       localStorage.clear();
-  
+
       // Redirect to /home
       navigate("/");
-  
+
       // Disable back button navigation after redirecting
       window.history.pushState(null, "", window.location.href);
       window.addEventListener("popstate", () => {
@@ -105,11 +106,22 @@ const TopBar = () => {
     }
     setOpen(false);
   };
-  
 
   const handleClick = () => {
-    navigate("/visit");  // Navigate to the home page
+    navigate("/visit"); // Navigate to the home page
   };
+
+  const handleClickEoffice = () => {
+    navigate("/eoffice");
+  };
+  const handleClickAplesarkar = () => {
+    navigate("/apalesarkar");
+  };
+  
+  const handleClickLokaadalat = () => {
+    navigate("/lokaadalat");
+  };
+
   return (
     <Box>
       <CssBaseline />
@@ -132,32 +144,35 @@ const TopBar = () => {
             paddingLeft: "20px",
           }}
         >
-           <Box marginLeft={5} display={{xs:'none', sm:'block'}}>
-            <Button 
-              onClick={() => navigate(-1)}  
+          <Box marginLeft={5} display={{ xs: "none", sm: "block" }}>
+            <Button
+              onClick={() => navigate(-1)}
               variant="contained"
               sx={{
-                background: "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                color: "#fff",  
-                textTransform: "none", 
-                padding: "8px 16px", // Adjust padding as needed
+                background:
+                  "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
+                color: "#fff",
+                textTransform: "none",
               }}
-            >  <ChevronLeftIcon/>
-              Back
+            >
+              {" "}
+              <ChevronLeftIcon />
+              BACK
             </Button>
 
-            <Button   
+            <Button
               onClick={handleClick}
               variant="contained"
               sx={{
-                marginLeft:"10px",
-                background: "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
-                color: "#fff",  
-                textTransform: "none", 
-                padding: "8px 16px", // Adjust padding as needed
+                background: "linear-gradient(to right, #fc466b, #3f5efb)",
+                color: "white",
+                "&:hover": {
+                  background: "linear-gradient(to right, #3f5efb, #fc466b)",
+                },
+                margin: "14px",
               }}
-              >   
-              Visit <ChevronRightIcon/>
+            >
+              VISIT <PersonIcon className="ps-1" />
             </Button>
           </Box>
           <Box
@@ -172,6 +187,59 @@ const TopBar = () => {
                 "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
             }}
           />
+          {/* <Box
+            sx={{
+              height: { xs: "25px", sm: "30px" },
+              width: { xs: "3px", sm: "4px" },
+              borderRadius: "10px",
+              background:
+                "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(0,147,255,1) 0%, rgba(0,212,255,1) 100%)",
+              margin: "0px 20px",
+            }}
+          ></Box> */}
+          <Box>
+            <Stack spacing={2} direction="row">
+              <Button
+                onClick={handleClickAplesarkar}
+                variant="contained"
+                sx={{
+                  background: "linear-gradient(to right, #ff7e5f, #feb47b)",
+                  color: "white",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #feb47b, #ff7e5f)",
+                  },
+                }}
+              >
+                Aaple Sarkar
+              </Button>
+              <Button
+                onClick={handleClickLokaadalat} 
+                variant="contained"
+                sx={{
+                  background: "linear-gradient(to right, #6a11cb, #2575fc)",
+                  color: "white",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #2575fc, #6a11cb)",
+                  },
+                }}
+              >
+                Lokaadalat
+              </Button>
+              <Button
+                onClick={handleClickEoffice}
+                variant="contained"
+                sx={{
+                  background: "linear-gradient(to right, #11998e, #38ef7d)",
+                  color: "white",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #38ef7d, #11998e)",
+                  },
+                }}
+              >
+                eOffice
+              </Button>
+            </Stack>
+          </Box>
           <Box
             sx={{
               flexGrow: 1,
@@ -270,15 +338,15 @@ const TopBar = () => {
                   minWidth: { xs: "30px", sm: "60px" },
                   justifyContent: "center",
                   textTransform: "none",
-                  display: 'flex',
-                  alignItems: 'center', 
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
                 <LogoutIcon />
                 <Typography
                   sx={{
-                    display: { xs: 'none', sm: 'flex' }, // Show text only on larger screens
-                    marginLeft: '8px',
+                    display: { xs: "none", sm: "flex" }, // Show text only on larger screens
+                    marginLeft: "8px",
                   }}
                 >
                   Logout

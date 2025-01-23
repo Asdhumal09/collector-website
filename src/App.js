@@ -10,6 +10,9 @@ import Cards from './pages/CardData';
 import Chart from './pages/chart';
 import { XDChart } from './pages/XDChart';
 import VisitPage from './pages/visitPage';
+import EOfficeTable from './pages/EOfficeTable';
+import ApaleSarkarTable from './pages/ApaleSarkarTable';
+import LokaadalatTable from './pages/LokaadalatTable';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -35,6 +38,9 @@ function App() {
           <Route path="/yojnaPage/yojnaTable" element={<YojanaTable/>} />
           <Route path="/XDchart" element={<XDChart/>}/>
           <Route path="/visit" element={<VisitPage/>}/>
+          <Route path="/eoffice" element={<EOfficeTable/>}/>
+          <Route path="/apalesarkar" element={<ApaleSarkarTable/>}/>
+          <Route path="/lokaadalat" element={<LokaadalatTable/>}/>
         </Routes>
       )}
     </>
