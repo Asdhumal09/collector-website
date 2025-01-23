@@ -15,38 +15,38 @@ import TopBar from "./TopBar";
 const data = [
   {
     office: "Collector office (Revenue), Jalna",
-    totalComplaints: 22,
-    resolved: 22,
-    pending: 0,
-    pendingPercent: "0%",
+    totalComplaints: 222,
+    resolved: 219,
+    pending: 3,
+    pendingPercent: "1%",
   },
   {
     office: "Sub-Divisional Office (Revenue), Ambad",
-    totalComplaints: 65,
-    resolved: 11,
-    pending: 7,
+    totalComplaints: 6,
+    resolved: 5,
+    pending: 1,
     pendingPercent: "17%",
   },
   {
     office: "Sub-Divisional Office (Revenue), Jalna",
-    totalComplaints: 133,
-    resolved: 107,
-    pending: 7,
-    pendingPercent: "7%",
+    totalComplaints: 13,
+    resolved: 3,
+    pending: 10,
+    pendingPercent: "77%",
   },
   {
     office: "Sub-Divisional Office (Revenue), Bhokardan",
-    totalComplaints: 87,
-    resolved: 11,
-    pending: 3,
+    totalComplaints: 8,
+    resolved: 7,
+    pending: 1,
     pendingPercent: "13%",
   },
   {
     office: "Sub-Divisional Office (Revenue), Partur",
-    totalComplaints: 72,
-    resolved: 57,
-    pending: 1,
-    pendingPercent: "1%",
+    totalComplaints: 7,
+    resolved: 2,
+    pending: 5,
+    pendingPercent: "71%",
   },
   {
     office: "Taluka Office (Revenue), Ambad",
@@ -92,9 +92,9 @@ const data = [
   },
   {
     office: "Taluka Office (Revenue), Mantha",
-    totalComplaints: 65,
-    resolved: 11,
-    pending: 7,
+    totalComplaints: 6,
+    resolved: 5,
+    pending:1,
     pendingPercent: "17%",
   },
   {
@@ -109,7 +109,7 @@ const data = [
     totalComplaints: 365,
     resolved: 339,
     pending: 26,
-    pendingPercent: "7%",
+    pendingPercent: "6%",
   },
 ];
 
@@ -136,7 +136,7 @@ const LokaadalatTable = () => {
           className="ff_yatra"
           sx={{ fontSize: "35px", backgroundColor: "#f5f5f5", padding: "10px" }}
         >
-          Lokaadalat
+          लोक अदालत
         </Typography>
 
         <Table>
@@ -144,7 +144,7 @@ const LokaadalatTable = () => {
             <TableRow>
               {[
                 "Sr No",
-                "काययालय",
+                "कार्यालय",
                 "एकूण तक्रारी",
                 "निस्कारीत केले",
                 "प्रलंबित",
