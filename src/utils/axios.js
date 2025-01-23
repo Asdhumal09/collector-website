@@ -5,6 +5,7 @@ import {
   GETALLSUBYOJNA,
   GETALLTALUKA,
   GETCHARTDATA,
+  GETFORMFIELDS,
   GETFORMFIELDSWITHTALUKA,
   GETVISITRECORDS,
   ISVALIDUSER,
@@ -106,7 +107,7 @@ export const getAllSubyojna = async () => {
 
   export const getFormFields = async (subyojnaId) => {
     try {
-      const res = await axios.get(`${GETFORMFIELDSWITHTALUKA}/${subyojnaId}`);
+      const res = await axios.get(`${GETFORMFIELDS}/${subyojnaId}`);
       return res;
     } catch (error) {
       throw error;
